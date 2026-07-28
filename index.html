@@ -132,6 +132,33 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
 .fatura-history li:last-child{border-bottom:none;}
 .fatura-ok{color:var(--success);font-weight:700;}
 .fatura-over{color:var(--danger);font-weight:700;}
+
+.app-layout{display:flex;min-height:100vh;}
+.sidebar{
+  width:210px;flex:none;background:var(--bg-panel);border-right:1px solid var(--line);
+  padding:24px 14px;display:flex;flex-direction:column;gap:4px;
+}
+.sidebar-brand{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--amber);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:18px;padding:0 8px;}
+.nav-item{
+  display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--text-muted);
+  text-align:left;padding:11px 12px;border-radius:10px;font-size:14.5px;font-family:'Inter',sans-serif;
+  cursor:pointer;font-weight:600;
+}
+.nav-item:hover{background:var(--bg-panel-2);color:var(--text-primary);}
+.nav-item.active{background:rgba(232,163,61,0.15);color:var(--amber);}
+.main-area{flex:1;min-width:0;padding:28px 16px 60px;}
+.main-area .wrap{padding:0;}
+
+@media (max-width:760px){
+  .app-layout{flex-direction:column;}
+  .sidebar{
+    width:100%;flex-direction:row;overflow-x:auto;padding:12px 10px;gap:8px;
+    border-right:none;border-bottom:1px solid var(--line);
+  }
+  .sidebar-brand{display:none;}
+  .nav-item{white-space:nowrap;padding:8px 14px;}
+  .main-area{padding:20px 12px 50px;}
+}
 </style>
 </head>
 <body>
@@ -149,7 +176,18 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
 </div>
 
 <div id="appRoot" style="display:none;">
-<div class="wrap">
+<div class="app-layout">
+
+  <nav class="sidebar">
+    <div class="sidebar-brand">Rotina & Foco</div>
+    <button class="nav-item active" data-nav="pessoal">🧍 Pessoal</button>
+    <button class="nav-item" data-nav="profissional">💼 Profissional</button>
+    <button class="nav-item" data-nav="financeiro">💰 Financeiro</button>
+    <button class="nav-item" data-nav="relacionamentos">🤝 Relacionamentos</button>
+  </nav>
+
+  <div class="main-area">
+  <div class="wrap">
 
   <div class="header">
     <div>
@@ -161,6 +199,7 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
 
   <div class="banner" id="banner"></div>
 
+  <section class="section-panel" data-section="pessoal">
   <div class="grid">
 
     <div class="card">
@@ -199,11 +238,20 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
       <div class="streak" id="streakText"></div>
     </div>
 
-    <div class="card">
-      <h2>Tarefas de hoje</h2>
-      <div class="sub">Pessoais e profissionais, num só lugar</div>
+    <div id="pessoalTarefasSlot"></div>
 
-      <div class="tab-row">
+  </div>
+  </section>
+
+  <section class="section-panel" data-section="profissional" style="display:none;">
+    <div id="profissionalTarefasSlot"></div>
+  </section>
+
+  <div class="card" id="tarefasCard" style="display:none;">
+      <h2>Tarefas</h2>
+      <div class="sub" id="tarefasSub">Pessoais e profissionais, num só lugar</div>
+
+      <div class="tab-row" id="tarefasTabRow" style="display:none;">
         <button class="tab active-p" id="tabPessoal" data-cat="pessoal">Pessoal</button>
         <button class="tab active-t" id="tabProfissional" data-cat="profissional">Profissional</button>
       </div>
@@ -228,12 +276,11 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
 
       <ul class="task-list" id="taskList"></ul>
       <div class="empty" id="emptyMsg" style="display:none;">Nenhum item ainda por aqui.</div>
-    </div>
-
   </div>
 
+  <section class="section-panel" data-section="relacionamentos" style="display:none;">
   <div class="card">
-    <h2>Pessoas</h2>
+    <h2>Relacionamentos</h2>
     <div class="sub">Aniversários e vínculos que valem a pena manter vivos</div>
 
     <div class="tab-row">
@@ -303,7 +350,9 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
       <div class="empty" id="vincEmpty" style="display:none;">Nenhum contato cadastrado ainda.</div>
     </div>
   </div>
+  </section>
 
+  <section class="section-panel" data-section="financeiro" style="display:none;">
   <div class="card">
     <h2>Financeiro</h2>
     <div class="sub">Sua caminhada até o carro e a casa própria</div>
@@ -340,9 +389,11 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
       <ul class="fatura-history" id="faturaHistory"></ul>
     </div>
   </div>
+  </section>
 
   <div class="footnote">Seus dados ficam salvos no seu Google Drive (área privada do app) e sincronizados com sua Google Agenda.</div>
-</div>
+  </div>
+  </div>
 </div>
 
 <script>
@@ -737,10 +788,34 @@ function renderTasks(){
   });
 }
 
+function showSection(name){
+  document.querySelectorAll('.section-panel').forEach(s=>{
+    s.style.display = (s.dataset.section === name) ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(b=>{
+    b.classList.toggle('active', b.dataset.nav === name);
+  });
+
+  const tarefasCard = document.getElementById('tarefasCard');
+  if(name === 'pessoal'){
+    document.getElementById('pessoalTarefasSlot').appendChild(tarefasCard);
+    tarefasCard.style.display = 'block';
+    document.getElementById('tarefasSub').textContent = 'Atividade, tarefas, cultura e estoque do seu dia a dia';
+    switchTab('pessoal');
+  } else if(name === 'profissional'){
+    document.getElementById('profissionalTarefasSlot').appendChild(tarefasCard);
+    tarefasCard.style.display = 'block';
+    document.getElementById('tarefasSub').textContent = 'O que precisa ser feito no trabalho';
+    switchTab('profissional');
+  } else {
+    tarefasCard.style.display = 'none';
+  }
+
+  try{ localStorage.setItem('rf_last_section', name); }catch(e){}
+}
+
 function switchTab(cat){
   currentCat = cat;
-  document.getElementById('tabPessoal').classList.toggle('active-p', cat==='pessoal');
-  document.getElementById('tabProfissional').classList.toggle('active-t', cat==='profissional');
   renderSubtabs();
   renderTasks();
 }
@@ -1369,8 +1444,11 @@ async function boot(){
     renderLogBtn();
   });
 
-  document.getElementById('tabPessoal').addEventListener('click', ()=>switchTab('pessoal'));
-  document.getElementById('tabProfissional').addEventListener('click', ()=>switchTab('profissional'));
+  document.querySelectorAll('.nav-item').forEach(btn=>{
+    btn.addEventListener('click', ()=> showSection(btn.dataset.nav));
+  });
+  const lastSection = localStorage.getItem('rf_last_section') || 'pessoal';
+  showSection(lastSection);
   document.getElementById('recurCheck').addEventListener('change', (e)=>{
     document.getElementById('dayPicker').style.display = e.target.checked ? 'flex' : 'none';
   });
