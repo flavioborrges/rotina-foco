@@ -242,6 +242,8 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
     </div>
 
     <div id="anivPanel">
+      <div id="todayBirthdaysBox"></div>
+
       <div class="add-box">
         <div class="add-row" style="align-items:flex-end;">
           <div class="field-col">
@@ -334,6 +336,7 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
         <input type="number" id="faturaValue" placeholder="Valor da fatura (R$)">
         <button id="faturaAddBtn">Registrar</button>
       </div>
+      <div id="faturaChart" style="margin-bottom:14px;"></div>
       <ul class="fatura-history" id="faturaHistory"></ul>
     </div>
   </div>
@@ -780,11 +783,29 @@ function nextBirthdayOccurrence(mmdd){
 }
 function daysBetween(a,b){ return Math.round((b-a)/86400000); }
 
+const MONTH_NAMES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+function renderTodayBirthdays(){
+  const box = document.getElementById('todayBirthdaysBox');
+  const todays = state.birthdays.filter(b=>{
+    const next = nextBirthdayOccurrence(b.mmdd);
+    return daysBetween(todayDateObj(), next) === 0;
+  });
+  if(todays.length === 0){ box.innerHTML = ''; return; }
+  box.innerHTML = `
+    <div style="background:rgba(232,163,61,0.12);border:1px solid var(--amber);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+      <div style="font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--amber);margin-bottom:4px;">🎉 Aniversariantes de hoje</div>
+      <div style="font-size:14px;">${todays.map(b=>b.name).join(', ')}</div>
+    </div>
+  `;
+}
+
 function renderAniv(){
   const ul = document.getElementById('anivList');
   const empty = document.getElementById('anivEmpty');
   ul.innerHTML = '';
   empty.style.display = state.birthdays.length === 0 ? 'block' : 'none';
+  renderTodayBirthdays();
 
   state.birthdays
     .slice()
@@ -793,13 +814,14 @@ function renderAniv(){
       const next = nextBirthdayOccurrence(b.mmdd);
       const dleft = daysBetween(todayDateObj(), next);
       const [m,d] = b.mmdd.split('-');
+      const dateLabel = `${parseInt(d,10)} de ${MONTH_NAMES[parseInt(m,10)-1]}`;
       const li = document.createElement('li');
       let badge = '';
       if(dleft === 0) badge = '<span class="badge-due">hoje!</span>';
       else if(dleft <= b.noticeDays) badge = `<span class="badge-due">em ${dleft}d</span>`;
       else badge = `<span class="badge-ok">em ${dleft}d</span>`;
       li.innerHTML = `
-        <span>🎂 ${b.name}<div class="item-sub">${d}/${m} · avisa ${b.noticeDays}d antes</div></span>
+        <span>🎂 ${b.name}<div class="item-sub">${dateLabel} · avisa ${b.noticeDays}d antes</div></span>
         <span class="meta">${badge}<button class="del">✕</button></span>
       `;
       li.querySelector('.del').addEventListener('click', async ()=>{
@@ -1234,6 +1256,41 @@ async function addGoal(){
 }
 
 /* ---------- Fatura mensal ---------- */
+function renderFaturaChart(months){
+  const wrap = document.getElementById('faturaChart');
+  if(months.length === 0){ wrap.innerHTML = ''; return; }
+
+  const chronological = months.slice().sort().slice(-6); // últimos 6 meses, mais antigo primeiro
+  const values = chronological.map(m=>state.faturaLog[m]);
+  const maxVal = Math.max(...values, state.faturaCap) * 1.15;
+  const W = 500, H = 180, padL = 10, padB = 26, barGap = 14;
+  const barW = (W - padL*2 - barGap*(chronological.length-1)) / chronological.length;
+  const capY = H - padB - (state.faturaCap / maxVal) * (H - padB - 10);
+
+  let bars = '';
+  chronological.forEach((m,i)=>{
+    const val = state.faturaLog[m];
+    const barH = (val / maxVal) * (H - padB - 10);
+    const x = padL + i*(barW+barGap);
+    const y = H - padB - barH;
+    const over = val > state.faturaCap;
+    const [yr, mo] = m.split('-');
+    const label = MONTH_NAMES[parseInt(mo,10)-1].slice(0,3);
+    bars += `
+      <rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="4" fill="${over ? 'var(--danger)' : 'var(--success)'}" opacity="0.85"/>
+      <text x="${x+barW/2}" y="${H-padB+16}" text-anchor="middle" font-size="11" fill="#8B93A7">${label}</text>
+    `;
+  });
+
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">
+      <line x1="${padL}" y1="${capY}" x2="${W-padL}" y2="${capY}" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <text x="${W-padL}" y="${capY-6}" text-anchor="end" font-size="11" fill="#E8A33D">teto ${formatBRL(state.faturaCap)}</text>
+      ${bars}
+    </svg>
+  `;
+}
+
 function renderFatura(){
   document.getElementById('faturaCapLabel').textContent = formatBRL(state.faturaCap);
   if(!document.getElementById('faturaMonth').value){
@@ -1242,6 +1299,7 @@ function renderFatura(){
   const ul = document.getElementById('faturaHistory');
   ul.innerHTML = '';
   const months = Object.keys(state.faturaLog).sort().reverse();
+  renderFaturaChart(months);
   if(months.length === 0){
     ul.innerHTML = '<li>Nenhum mês registrado ainda.</li>';
     return;
