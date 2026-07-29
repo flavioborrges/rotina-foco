@@ -82,7 +82,7 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
 
 .add-box{background:var(--bg-panel-2);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:16px;}
 .add-row{display:flex;gap:8px;margin-bottom:0;flex-wrap:wrap;}
-.add-row input[type=text],.add-row input[type=date],.add-row input[type=number],.add-row input[type=time]{
+.add-row input[type=text],.add-row input[type=date],.add-row input[type=number],.add-row input[type=time],.add-row select{
   flex:1;min-width:110px;background:var(--bg-deep);border:1px solid var(--line);color:var(--text-primary);
   border-radius:8px;padding:9px 12px;font-size:13.5px;font-family:'Inter',sans-serif;
 }
@@ -264,18 +264,30 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
 
       <div class="add-box">
         <div class="add-row">
-          <input type="text" id="taskInput" placeholder="Adicionar item e apertar Enter" style="flex:2;">
-          <div class="field-col" style="max-width:110px;">
-            <span class="field-label">Horário (opcional)</span>
+          <input type="text" id="taskInput" placeholder="Nome do evento/tarefa" style="flex:2;">
+          <div class="field-col" style="max-width:120px;">
+            <span class="field-label">Tipo</span>
+            <select id="freqSelect">
+              <option value="unica">Único</option>
+              <option value="diaria">Diário</option>
+              <option value="semanal">Semanal</option>
+              <option value="mensal">Mensal</option>
+              <option value="anual">Anual</option>
+            </select>
+          </div>
+          <div class="field-col" style="max-width:100px;">
+            <span class="field-label">Horário</span>
             <input type="time" id="taskTime">
           </div>
           <button id="addBtn">Add</button>
         </div>
-        <label class="recur-toggle">
-          <input type="checkbox" id="recurCheck">
-          Repete toda semana (dias variam? escolha os dias desta semana)
-        </label>
-        <div class="day-picker" id="dayPicker" style="display:none;"></div>
+
+        <div id="freqExtraFields" style="margin-top:10px;"></div>
+
+        <div class="field-col" style="margin-top:10px;">
+          <span class="field-label">Local (opcional)</span>
+          <input type="text" id="taskLocation" placeholder="Ex: Academia, Escritório, Online...">
+        </div>
       </div>
 
       <ul class="task-list" id="taskList"></ul>
@@ -421,7 +433,7 @@ let currentSub = "compromissos";
 let selectedDays = [];
 let currentPeoplePanel = "aniversarios";
 
-function todayKey(){ return new Date().toISOString().slice(0,10); }
+function todayKey(){ const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function todayWeekday(){ return new Date().getDay(); }
 function todayDateObj(){ const d = new Date(); d.setHours(0,0,0,0); return d; }
 function formatDatePretty(){
@@ -437,24 +449,64 @@ function emptyPessoal(){
 
 function ensureDay(tk){
   if(!state.days[tk]){
-    state.days[tk] = {
-      tasksPessoal: emptyPessoal(),
-      tasksProfissional: [],
-      recurringDone: {},
-      checklistDone: DEFAULT_CHECKLIST.map(()=>false),
-      loggedBedtime: null,
-      notifiedIds: []
-    };
+    state.days[tk] = { checklistDone: DEFAULT_CHECKLIST.map(()=>false), loggedBedtime:null, notifiedIds:[], eventsDone:[] };
   }
   const day = state.days[tk];
-  if(Array.isArray(day.tasksPessoal)){
-    const migrated = emptyPessoal();
-    migrated.tarefas = day.tasksPessoal;
-    day.tasksPessoal = migrated;
-  }
-  if(!day.recurringDone) day.recurringDone = {};
+  if(!day.eventsDone) day.eventsDone = [];
   if(!day.notifiedIds) day.notifiedIds = [];
   return day;
+}
+
+function eventOccursOnDate(ev, dateObj){
+  const wd = dateObj.getDay();
+  const dateKey = dateObj.getFullYear()+'-'+String(dateObj.getMonth()+1).padStart(2,'0')+'-'+String(dateObj.getDate()).padStart(2,'0');
+  switch(ev.freq){
+    case 'unica': return ev.date === dateKey;
+    case 'diaria': return true;
+    case 'semanal': return (ev.days||[]).includes(wd);
+    case 'mensal': return dateObj.getDate() === ev.dayOfMonth;
+    case 'anual': {
+      const mm = String(dateObj.getMonth()+1).padStart(2,'0');
+      const dd = String(dateObj.getDate()).padStart(2,'0');
+      return ev.mmdd === `${mm}-${dd}`;
+    }
+    default: return false;
+  }
+}
+
+function migrateToEvents(){
+  if(!state.events){
+    state.events = [];
+    (state.recurring || []).forEach(r=>{
+      state.events.push({ id:r.id, text:r.text, cat:r.cat, subcat:r.subcat||null, freq:'semanal', days:r.days, time:r.time||null, location:null });
+    });
+    Object.keys(state.days || {}).forEach(dateKey=>{
+      const day = state.days[dateKey];
+      if(day.tasksPessoal){
+        Object.keys(day.tasksPessoal).forEach(sub=>{
+          (day.tasksPessoal[sub]||[]).forEach(t=>{
+            const id = t.id || uid();
+            state.events.push({ id, text:t.text, cat:'pessoal', subcat:sub, freq:'unica', date:dateKey, time:t.time||null, location:null });
+            if(t.done){ day.eventsDone = day.eventsDone || []; day.eventsDone.push(id); }
+          });
+        });
+        delete day.tasksPessoal;
+      }
+      if(day.tasksProfissional){
+        day.tasksProfissional.forEach(t=>{
+          const id = t.id || uid();
+          state.events.push({ id, text:t.text, cat:'profissional', subcat:null, freq:'unica', date:dateKey, time:t.time||null, location:null });
+          if(t.done){ day.eventsDone = day.eventsDone || []; day.eventsDone.push(id); }
+        });
+        delete day.tasksProfissional;
+      }
+      if(day.recurringDone){
+        day.eventsDone = (day.eventsDone||[]).concat(Object.keys(day.recurringDone).filter(k=>day.recurringDone[k]));
+        delete day.recurringDone;
+      }
+    });
+    delete state.recurring;
+  }
 }
 
 /* ---------- Autenticação Google ---------- */
@@ -553,7 +605,7 @@ async function loadState(){
   }catch(e){ console.error('Erro ao carregar do Drive', e); state = null; }
 
   if(!state) state = { bedtimeGoal:"23:00", days:{}, recurring:[] };
-  if(!state.recurring) state.recurring = [];
+  migrateToEvents();
   if(!state.birthdays) state.birthdays = [];
   if(!state.contacts) state.contacts = [];
   if(!state.goals){
@@ -702,71 +754,52 @@ function renderDayPicker(){
   });
 }
 
+const FREQ_LABELS = { unica:'único', diaria:'diário', semanal:'semanal', mensal:'mensal', anual:'anual' };
+
 function renderTasks(){
   const tk = todayKey();
   const day = ensureDay(tk);
   const ul = document.getElementById('taskList');
   const empty = document.getElementById('emptyMsg');
   ul.innerHTML = '';
-  let items = [];
+  const todayObj = todayDateObj();
 
-  if(currentCat === 'pessoal'){
-    const wd = todayWeekday();
-    state.recurring
-      .filter(r => r.cat === 'pessoal' && r.subcat === currentSub && r.days.includes(wd))
-      .forEach(r=>{ items.push({ type:'recurring', id:r.id, text:r.text, time:r.time||null, done: !!day.recurringDone[r.id] }); });
-    (day.tasksPessoal[currentSub] || []).forEach((t, idx)=>{
-      items.push({ type:'adhoc', id:t.id, idx, text:t.text, time:t.time||null, done:t.done, list:'tasksPessoal', sub:currentSub });
-    });
-  } else {
-    const wd = todayWeekday();
-    state.recurring
-      .filter(r => r.cat === 'profissional' && r.days.includes(wd))
-      .forEach(r=>{ items.push({ type:'recurring', id:r.id, text:r.text, time:r.time||null, done: !!day.recurringDone[r.id] }); });
-    day.tasksProfissional.forEach((t, idx)=>{
-      items.push({ type:'adhoc', id:t.id, idx, text:t.text, time:t.time||null, done:t.done, list:'tasksProfissional' });
-    });
-  }
+  let items = state.events.filter(ev=>{
+    if(ev.cat !== currentCat) return false;
+    if(currentCat === 'pessoal' && ev.subcat !== currentSub) return false;
+    return eventOccursOnDate(ev, todayObj);
+  });
 
   items.sort((a,b)=> (a.time||'99:99').localeCompare(b.time||'99:99'));
   empty.style.display = items.length === 0 ? 'block' : 'none';
 
-  items.forEach(item=>{
+  items.forEach(ev=>{
+    const done = day.eventsDone.includes(ev.id);
     const li = document.createElement('li');
-    const checked = item.done;
-    const recBadge = item.type === 'recurring' ? '<span class="badge-rec">recorrente</span>' : '';
-    const timeBadge = item.time ? `<span class="badge-ok">🕐 ${item.time}</span>` : '';
-    const exportBtn = item.time ? '<button class="small-btn cal-export">📅 .ics</button>' : '';
-    const googleBtn = item.time ? '<button class="small-btn google-sync">🔗 Google</button>' : '';
+    const freqBadge = ev.freq !== 'unica' ? `<span class="badge-rec">${FREQ_LABELS[ev.freq]}</span>` : '';
+    const timeBadge = ev.time ? `<span class="badge-ok">🕐 ${ev.time}</span>` : '';
+    const exportBtn = ev.time ? '<button class="small-btn cal-export">📅 .ics</button>' : '';
+    const googleBtn = ev.time ? '<button class="small-btn google-sync">🔗 Google</button>' : '';
+    const locLine = ev.location ? `<div class="item-sub">📍 ${ev.location}</div>` : '';
     li.innerHTML = `
-      <input type="checkbox" ${checked?'checked':''}>
-      <span class="${checked?'done':''}">${item.text}</span>
-      <span class="meta">${timeBadge}${recBadge}${exportBtn}${googleBtn}<button class="del">✕</button></span>
+      <input type="checkbox" ${done?'checked':''}>
+      <span class="${done?'done':''}">${ev.text}${locLine}</span>
+      <span class="meta">${timeBadge}${freqBadge}${exportBtn}${googleBtn}<button class="del">✕</button></span>
     `;
     li.querySelector('input').addEventListener('change', async (e)=>{
-      if(item.type === 'recurring') day.recurringDone[item.id] = e.target.checked;
-      else if(item.list === 'tasksPessoal') day.tasksPessoal[item.sub][item.idx].done = e.target.checked;
-      else day.tasksProfissional[item.idx].done = e.target.checked;
+      if(e.target.checked){ if(!day.eventsDone.includes(ev.id)) day.eventsDone.push(ev.id); }
+      else { day.eventsDone = day.eventsDone.filter(id=>id!==ev.id); }
       await saveState();
       renderTasks();
     });
     li.querySelector('.del').addEventListener('click', async ()=>{
-      if(item.type === 'recurring') state.recurring = state.recurring.filter(r=>r.id !== item.id);
-      else if(item.list === 'tasksPessoal') day.tasksPessoal[item.sub].splice(item.idx,1);
-      else day.tasksProfissional.splice(item.idx,1);
+      state.events = state.events.filter(e=>e.id!==ev.id);
       await saveState();
       renderTasks();
     });
     const expBtn = li.querySelector('.cal-export');
     if(expBtn){
-      expBtn.addEventListener('click', ()=>{
-        if(item.type === 'recurring'){
-          const rec = state.recurring.find(r=>r.id===item.id);
-          downloadICS(buildRecurringICS(rec));
-        } else {
-          downloadICS(buildOneTimeICS(item.text, item.time));
-        }
-      });
+      expBtn.addEventListener('click', ()=> downloadICS(buildEventICS(ev)));
     }
     const gBtn = li.querySelector('.google-sync');
     if(gBtn){
@@ -774,13 +807,7 @@ function renderTasks(){
         gBtn.textContent = 'Enviando...';
         gBtn.disabled = true;
         try{
-          let result;
-          if(item.type === 'recurring'){
-            const rec = state.recurring.find(r=>r.id===item.id);
-            result = await syncRecurringToGoogle(rec);
-          } else {
-            result = await syncOneTimeToGoogle(item.text, item.time);
-          }
+          const result = await syncEventToGoogle(ev);
           gBtn.textContent = result.ok ? '✅ Sincronizado' : '⚠️ Ver conta';
         }catch(e){
           gBtn.textContent = '⚠️ Erro';
@@ -824,29 +851,70 @@ function switchTab(cat){
   renderTasks();
 }
 
+function renderFreqExtra(){
+  const freq = document.getElementById('freqSelect').value;
+  const wrap = document.getElementById('freqExtraFields');
+  if(freq === 'unica'){
+    wrap.innerHTML = `
+      <div class="field-col" style="max-width:180px;">
+        <span class="field-label">Data</span>
+        <input type="date" id="taskDate" value="${todayKey()}">
+      </div>`;
+  } else if(freq === 'semanal'){
+    wrap.innerHTML = `<span class="field-label" style="display:block;margin-bottom:6px;">Dias da semana</span><div class="day-picker" id="dayPicker"></div>`;
+    renderDayPicker();
+  } else if(freq === 'mensal'){
+    wrap.innerHTML = `
+      <div class="field-col" style="max-width:180px;">
+        <span class="field-label">Dia do mês (1-31)</span>
+        <input type="number" id="taskDayOfMonth" min="1" max="31" placeholder="Ex: 15">
+      </div>`;
+  } else if(freq === 'anual'){
+    wrap.innerHTML = `
+      <div class="field-col" style="max-width:180px;">
+        <span class="field-label">Data (dia e mês)</span>
+        <input type="date" id="taskAnnualDate">
+      </div>`;
+  } else {
+    wrap.innerHTML = `<div class="item-sub">Repete todos os dias.</div>`;
+  }
+}
+
 async function addTask(){
   const input = document.getElementById('taskInput');
   const text = input.value.trim();
   if(!text) return;
+  const freq = document.getElementById('freqSelect').value;
   const timeVal = document.getElementById('taskTime').value || null;
-  const recurring = document.getElementById('recurCheck').checked;
-  const tk = todayKey();
-  const day = ensureDay(tk);
+  const location = document.getElementById('taskLocation').value.trim() || null;
 
-  if(recurring && selectedDays.length > 0){
-    state.recurring.push({ id: uid(), text, time: timeVal, cat: currentCat, subcat: currentCat === 'pessoal' ? currentSub : null, days: [...selectedDays] });
-  } else if(currentCat === 'pessoal'){
-    day.tasksPessoal[currentSub].push({ id: uid(), text, time: timeVal, done:false });
-  } else {
-    day.tasksProfissional.push({ id: uid(), text, time: timeVal, done:false });
+  const ev = {
+    id: uid(), text, time: timeVal, location, freq,
+    cat: currentCat, subcat: currentCat === 'pessoal' ? currentSub : null
+  };
+
+  if(freq === 'unica'){
+    ev.date = document.getElementById('taskDate').value || todayKey();
+  } else if(freq === 'semanal'){
+    if(selectedDays.length === 0) return;
+    ev.days = [...selectedDays];
+  } else if(freq === 'mensal'){
+    const dom = parseInt(document.getElementById('taskDayOfMonth').value, 10);
+    if(!dom || dom < 1 || dom > 31) return;
+    ev.dayOfMonth = dom;
+  } else if(freq === 'anual'){
+    const dateVal = document.getElementById('taskAnnualDate').value;
+    if(!dateVal) return;
+    ev.mmdd = dateVal.slice(5);
   }
+
+  state.events.push(ev);
 
   input.value = '';
   document.getElementById('taskTime').value = '';
-  document.getElementById('recurCheck').checked = false;
+  document.getElementById('taskLocation').value = '';
   selectedDays = [];
-  document.getElementById('dayPicker').style.display = 'none';
-  renderDayPicker();
+  renderFreqExtra();
   await saveState();
   renderTasks();
 }
@@ -1034,36 +1102,21 @@ function checkScheduledNotifications(){
   const hh = String(now.getHours()).padStart(2,'0');
   const mm = String(now.getMinutes()).padStart(2,'0');
   const nowStr = `${hh}:${mm}`;
-  const wd = now.getDay();
   const tk = todayKey();
   const day = ensureDay(tk);
+  const todayObj = todayDateObj();
   let changed = false;
 
-  state.recurring.forEach(r=>{
-    if(r.time === nowStr && r.days.includes(wd)){
-      const key = `rec-${r.id}-${tk}`;
+  state.events.forEach(ev=>{
+    if(ev.time === nowStr && eventOccursOnDate(ev, todayObj) && !day.eventsDone.includes(ev.id)){
+      const key = `ev-${ev.id}-${tk}`;
       if(!day.notifiedIds.includes(key)){
-        fireNotification('Rotina & Foco', r.text);
+        fireNotification('Rotina & Foco', ev.location ? `${ev.text} · 📍 ${ev.location}` : ev.text);
         day.notifiedIds.push(key);
         changed = true;
       }
     }
   });
-
-  const checkAdhoc = (list)=>{
-    list.forEach(t=>{
-      if(t.time === nowStr && !t.done){
-        const key = `adhoc-${t.id}-${tk}`;
-        if(!day.notifiedIds.includes(key)){
-          fireNotification('Rotina & Foco', t.text);
-          day.notifiedIds.push(key);
-          changed = true;
-        }
-      }
-    });
-  };
-  Object.values(day.tasksPessoal).forEach(checkAdhoc);
-  checkAdhoc(day.tasksProfissional);
 
   if(changed) saveState();
 }
@@ -1085,43 +1138,45 @@ function downloadICS(content){
   URL.revokeObjectURL(url);
 }
 
-function buildOneTimeICS(text, time){
-  const now = new Date();
-  const [h,m] = time.split(':').map(Number);
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
-  const end = new Date(start.getTime() + 30*60000);
+function buildEventICS(ev){
   const fmt = (d)=> d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')+'00';
-  return [
-    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Rotina e Foco//PT-BR','BEGIN:VEVENT',
-    `UID:${uid()}@rotinafoco`,
-    `DTSTART:${fmt(start)}`,
-    `DTEND:${fmt(end)}`,
-    `SUMMARY:${icsEscape(text)}`,
-    'END:VEVENT','END:VCALENDAR'
-  ].join('\r\n');
-}
+  const now = new Date();
+  const [h,m] = (ev.time || '09:00').split(':').map(Number);
+  let start, rrule = null;
 
-function buildRecurringICS(rec){
-  const now = new Date();
-  const [h,m] = (rec.time || '09:00').split(':').map(Number);
-  // próxima ocorrência a partir de hoje
-  let start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
-  for(let i=0;i<8;i++){
-    if(rec.days.includes(start.getDay()) && start >= now) break;
-    start.setDate(start.getDate()+1);
+  if(ev.freq === 'unica'){
+    const [y,mo,da] = ev.date.split('-').map(Number);
+    start = new Date(y, mo-1, da, h, m, 0);
+  } else if(ev.freq === 'diaria'){
+    start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
+    rrule = 'RRULE:FREQ=DAILY';
+  } else if(ev.freq === 'semanal'){
+    start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
+    for(let i=0;i<8;i++){ if(ev.days.includes(start.getDay()) && start >= now) break; start.setDate(start.getDate()+1); }
+    rrule = `RRULE:FREQ=WEEKLY;BYDAY=${ev.days.map(d=>ICAL_WEEKDAY[d]).join(',')}`;
+  } else if(ev.freq === 'mensal'){
+    start = new Date(now.getFullYear(), now.getMonth(), ev.dayOfMonth, h, m, 0);
+    if(start < now) start = new Date(now.getFullYear(), now.getMonth()+1, ev.dayOfMonth, h, m, 0);
+    rrule = `RRULE:FREQ=MONTHLY;BYMONTHDAY=${ev.dayOfMonth}`;
+  } else if(ev.freq === 'anual'){
+    const [mo,da] = ev.mmdd.split('-').map(Number);
+    start = new Date(now.getFullYear(), mo-1, da, h, m, 0);
+    if(start < now) start = new Date(now.getFullYear()+1, mo-1, da, h, m, 0);
+    rrule = 'RRULE:FREQ=YEARLY';
   }
+
   const end = new Date(start.getTime() + 30*60000);
-  const fmt = (d)=> d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')+'00';
-  const byday = rec.days.map(d=>ICAL_WEEKDAY[d]).join(',');
-  return [
+  const lines = [
     'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Rotina e Foco//PT-BR','BEGIN:VEVENT',
-    `UID:${rec.id}@rotinafoco`,
+    `UID:${ev.id}@rotinafoco`,
     `DTSTART:${fmt(start)}`,
     `DTEND:${fmt(end)}`,
-    `RRULE:FREQ=WEEKLY;BYDAY=${byday}`,
-    `SUMMARY:${icsEscape(rec.text)}`,
-    'END:VEVENT','END:VCALENDAR'
-  ].join('\r\n');
+    `SUMMARY:${icsEscape(ev.text)}`
+  ];
+  if(ev.location) lines.push(`LOCATION:${icsEscape(ev.location)}`);
+  if(rrule) lines.push(rrule);
+  lines.push('END:VEVENT','END:VCALENDAR');
+  return lines.join('\r\n');
 }
 
 function buildAllBirthdaysICS(){
@@ -1208,35 +1263,41 @@ async function createCalendarEvent(eventBody){
   return { ok: !!data.id, raw: data };
 }
 
-async function syncOneTimeToGoogle(text, time){
+async function syncEventToGoogle(ev){
   const now = new Date();
-  const dateStr = now.toISOString().slice(0,10);
-  const [h,m] = time.split(':').map(Number);
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+  const [h,m] = (ev.time || '09:00').split(':').map(Number);
+  let start, recurrence = null;
+
+  if(ev.freq === 'unica'){
+    const [y,mo,da] = ev.date.split('-').map(Number);
+    start = new Date(y, mo-1, da, h, m);
+  } else if(ev.freq === 'diaria'){
+    start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+    recurrence = ['RRULE:FREQ=DAILY'];
+  } else if(ev.freq === 'semanal'){
+    start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+    for(let i=0;i<8;i++){ if(ev.days.includes(start.getDay()) && start >= now) break; start.setDate(start.getDate()+1); }
+    recurrence = [`RRULE:FREQ=WEEKLY;BYDAY=${ev.days.map(d=>WEEKDAY_ICAL[d]).join(',')}`];
+  } else if(ev.freq === 'mensal'){
+    start = new Date(now.getFullYear(), now.getMonth(), ev.dayOfMonth, h, m);
+    if(start < now) start = new Date(now.getFullYear(), now.getMonth()+1, ev.dayOfMonth, h, m);
+    recurrence = [`RRULE:FREQ=MONTHLY;BYMONTHDAY=${ev.dayOfMonth}`];
+  } else if(ev.freq === 'anual'){
+    const [mo,da] = ev.mmdd.split('-').map(Number);
+    start = new Date(now.getFullYear(), mo-1, da, h, m);
+    if(start < now) start = new Date(now.getFullYear()+1, mo-1, da, h, m);
+    recurrence = ['RRULE:FREQ=YEARLY'];
+  }
+
   const end = new Date(start.getTime() + 30*60000);
-  return createCalendarEvent({
-    summary: text,
+  const body = {
+    summary: ev.text,
     start: { dateTime: start.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
     end: { dateTime: end.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }
-  });
-}
-
-async function syncRecurringToGoogle(rec){
-  const now = new Date();
-  const [h,m] = (rec.time || '09:00').split(':').map(Number);
-  let start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
-  for(let i=0;i<8;i++){
-    if(rec.days.includes(start.getDay()) && start >= now) break;
-    start.setDate(start.getDate()+1);
-  }
-  const end = new Date(start.getTime() + 30*60000);
-  const byday = rec.days.map(d=>WEEKDAY_ICAL[d]).join(',');
-  return createCalendarEvent({
-    summary: rec.text,
-    start: { dateTime: start.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
-    end: { dateTime: end.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
-    recurrence: [`RRULE:FREQ=WEEKLY;BYDAY=${byday}`]
-  });
+  };
+  if(ev.location) body.location = ev.location;
+  if(recurrence) body.recurrence = recurrence;
+  return createCalendarEvent(body);
 }
 
 async function syncBirthdaysToGoogle(){
@@ -1411,7 +1472,6 @@ async function boot(){
   renderChecklist();
   renderLogBtn();
   renderSubtabs();
-  renderDayPicker();
   renderTasks();
   renderAniv();
   renderVinc();
@@ -1453,9 +1513,8 @@ async function boot(){
   });
   const lastSection = localStorage.getItem('rf_last_section') || 'pessoal';
   showSection(lastSection);
-  document.getElementById('recurCheck').addEventListener('change', (e)=>{
-    document.getElementById('dayPicker').style.display = e.target.checked ? 'flex' : 'none';
-  });
+  document.getElementById('freqSelect').addEventListener('change', renderFreqExtra);
+  renderFreqExtra();
   document.getElementById('addBtn').addEventListener('click', addTask);
   document.getElementById('taskInput').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') addTask(); });
 
