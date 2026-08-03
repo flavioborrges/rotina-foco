@@ -203,6 +203,12 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
 
   <div class="banner" id="banner"></div>
 
+  <div class="card" id="weekSummaryCard" style="margin-bottom:20px;">
+    <h2>Semana</h2>
+    <div class="sub">Seus próximos 7 dias, de relance</div>
+    <div id="weekSummary"></div>
+  </div>
+
   <section class="section-panel" data-section="pessoal">
   <div class="grid">
 
@@ -841,6 +847,7 @@ function renderTasks(){
   const empty = document.getElementById('emptyMsg');
   ul.innerHTML = '';
   const todayObj = todayDateObj();
+  renderWeekSummary();
 
   let items = state.events.filter(ev=>{
     if(ev.cat !== currentCat) return false;
@@ -1162,6 +1169,50 @@ function renderBanner(){
   });
 }
 
+const WEEKDAY_SHORT = ['dom','seg','ter','qua','qui','sex','sáb'];
+const SUBCAT_LABELS = { compromissos:'Atividade', tarefas:'Tarefas', lazer:'Cultura', estoque:'Estoque' };
+
+function renderWeekSummary(){
+  const wrap = document.getElementById('weekSummary');
+  wrap.innerHTML = '';
+
+  for(let i=0; i<7; i++){
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate()+i);
+
+    const items = state.events
+      .filter(ev => eventOccursOnDate(ev, d))
+      .sort((a,b)=> (a.time||'99:99').localeCompare(b.time||'99:99'));
+
+    const dayLabel = i===0 ? 'Hoje' : i===1 ? 'Amanhã' : `${WEEKDAY_SHORT[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);';
+    if(i === 6) row.style.borderBottom = 'none';
+
+    const label = document.createElement('div');
+    label.style.cssText = 'flex:none;width:76px;font-size:12.5px;color:var(--text-muted);font-weight:600;padding-top:2px;';
+    label.textContent = dayLabel;
+    row.appendChild(label);
+
+    const list = document.createElement('div');
+    list.style.cssText = 'flex:1;';
+    if(items.length === 0){
+      list.innerHTML = `<span style="font-size:12.5px;color:var(--text-muted);opacity:0.6;">nada marcado</span>`;
+    } else {
+      list.innerHTML = items.map(ev=>{
+        const icon = ev.cat === 'profissional' ? '💼' : '🧍';
+        const time = ev.time ? `<b>${ev.time}</b> · ` : '';
+        const loc = ev.location ? ` · 📍 ${ev.location}` : '';
+        return `<div style="font-size:13.5px;margin-bottom:4px;">${icon} ${time}${ev.text}${loc}</div>`;
+      }).join('');
+    }
+    row.appendChild(list);
+    wrap.appendChild(row);
+  }
+}
+
 /* ---------- Notificações no navegador ---------- */
 function requestNotifPermission(){
   if('Notification' in window && Notification.permission === 'default'){
@@ -1285,8 +1336,8 @@ function parseVCard(text){
   const blocks = text.split(/BEGIN:VCARD/i).slice(1);
   const found = [];
   blocks.forEach(block=>{
-    const fnMatch = block.match(/\r?\nFN[^:]*:(.*)/i);
-    const bdayMatch = block.match(/\r?\nBDAY[^:]*:(.*)/i);
+    const fnMatch = block.match(/\r?\n(?:item\d+\.)?FN[^:]*:(.*)/i);
+    const bdayMatch = block.match(/\r?\n(?:item\d+\.)?BDAY[^:]*:(.*)/i);
     if(!fnMatch || !bdayMatch) return;
     const name = fnMatch[1].trim();
     const raw = bdayMatch[1].trim();
@@ -1307,9 +1358,10 @@ async function importVCF(){
   if(!file){ status.textContent = 'Selecione um arquivo .vcf primeiro.'; return; }
 
   const text = await file.text();
+  const totalCards = (text.match(/BEGIN:VCARD/ig) || []).length;
   const found = parseVCard(text);
   if(found.length === 0){
-    status.textContent = 'Não encontrei aniversários nesse arquivo. Confira se os contatos exportados têm data de nascimento preenchida.';
+    status.textContent = `Li ${totalCards} contato(s) no arquivo, mas nenhum tinha data de nascimento reconhecível. Confira se o(s) contato(s) tem "Aniversário" preenchido no app Contatos antes de exportar de novo.`;
     return;
   }
 
@@ -1324,7 +1376,7 @@ async function importVCF(){
   await saveState();
   renderAniv();
   renderBanner();
-  status.textContent = `Importado: ${added} novo(s) aniversário(s)${skipped ? `, ${skipped} já existiam e foram ignorados` : ''}.`;
+  status.textContent = `Li ${totalCards} contato(s) no arquivo. Importado: ${added} novo(s) aniversário(s)${skipped ? `, ${skipped} já existiam e foram ignorados` : ''}.`;
   fileInput.value = '';
 }
 
