@@ -1480,10 +1480,17 @@ async function syncBirthdaysToGoogle(){
     const nextDateStr = nextDay.toISOString().slice(0,10);
     const result = await createCalendarEvent({
       summary: `🎂 Aniversário de ${b.name}`,
+      description: `Lembrete do Rotina & Foco: com antecedência pra pensar num presente, e no dia pra parabenizar.`,
       start: { date: dateStr },
       end: { date: nextDateStr },
       recurrence: ['RRULE:FREQ=YEARLY'],
-      reminders: { useDefault:false, overrides:[{ method:'popup', minutes: b.noticeDays*24*60 }] }
+      reminders: {
+        useDefault: false,
+        overrides: [
+          { method:'popup', minutes: b.noticeDays*24*60 },
+          { method:'popup', minutes: 0 }
+        ]
+      }
     });
     if(!result.ok) allOk = false;
   }
