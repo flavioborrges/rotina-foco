@@ -297,6 +297,7 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
               <option value="semanal">Semanal</option>
               <option value="mensal">Mensal</option>
               <option value="anual">Anual</option>
+              <option value="personalizado">Personalizado</option>
             </select>
           </div>
           <div class="field-col" style="max-width:100px;">
@@ -500,6 +501,13 @@ function eventOccursOnDate(ev, dateObj){
       const mm = String(dateObj.getMonth()+1).padStart(2,'0');
       const dd = String(dateObj.getDate()).padStart(2,'0');
       return ev.mmdd === `${mm}-${dd}`;
+    }
+    case 'personalizado': {
+      if(!ev.startDate || !ev.intervalDays) return false;
+      const [y,m,d] = ev.startDate.split('-').map(Number);
+      const start = new Date(y, m-1, d);
+      const diff = Math.round((dateObj - start) / 86400000);
+      return diff >= 0 && diff % ev.intervalDays === 0;
     }
     default: return false;
   }
@@ -852,7 +860,7 @@ function renderDayPicker(){
   });
 }
 
-const FREQ_LABELS = { unica:'único', diaria:'diário', semanal:'semanal', mensal:'mensal', anual:'anual' };
+const FREQ_LABELS = { unica:'único', diaria:'diário', semanal:'semanal', mensal:'mensal', anual:'anual', personalizado:'personalizado' };
 
 function renderTasks(){
   const tk = todayKey();
@@ -875,7 +883,8 @@ function renderTasks(){
   items.forEach(ev=>{
     const done = day.eventsDone.includes(ev.id);
     const li = document.createElement('li');
-    const freqBadge = ev.freq !== 'unica' ? `<span class="badge-rec">${FREQ_LABELS[ev.freq]}</span>` : '';
+    const freqLabel = ev.freq === 'personalizado' ? `a cada ${ev.intervalDays}d` : FREQ_LABELS[ev.freq];
+    const freqBadge = ev.freq !== 'unica' ? `<span class="badge-rec">${freqLabel}</span>` : '';
     const timeBadge = ev.time ? `<span class="badge-ok">🕐 ${ev.time}</span>` : '';
     const exportBtn = ev.time ? '<button class="small-btn cal-export">📅 .ics</button>' : '';
     const googleBtn = ev.time ? '<button class="small-btn google-sync">🔗 Google</button>' : '';
@@ -976,6 +985,19 @@ function renderFreqExtra(){
         <span class="field-label">Data (dia e mês)</span>
         <input type="date" id="taskAnnualDate">
       </div>`;
+  } else if(freq === 'personalizado'){
+    wrap.innerHTML = `
+      <div class="add-row" style="margin:0;">
+        <div class="field-col" style="max-width:160px;">
+          <span class="field-label">A cada quantos dias</span>
+          <input type="number" id="taskInterval" min="2" max="180" value="2" placeholder="Ex: 2">
+        </div>
+        <div class="field-col" style="max-width:180px;">
+          <span class="field-label">A partir de</span>
+          <input type="date" id="taskIntervalStart" value="${todayKey()}">
+        </div>
+      </div>
+      <div class="item-sub" style="margin-top:6px;">Ex: "a cada 2 dias" = dia sim, dia não. Pra padrões bem irregulares, o mais simples é criar vários eventos "Único" em datas separadas.</div>`;
   } else {
     wrap.innerHTML = `<div class="item-sub">Repete todos os dias.</div>`;
   }
@@ -998,6 +1020,10 @@ function startEditEvent(ev){
   if(ev.freq === 'unica') document.getElementById('taskDate').value = ev.date;
   else if(ev.freq === 'mensal') document.getElementById('taskDayOfMonth').value = ev.dayOfMonth;
   else if(ev.freq === 'anual') document.getElementById('taskAnnualDate').value = `2000-${ev.mmdd}`;
+  else if(ev.freq === 'personalizado'){
+    document.getElementById('taskInterval').value = ev.intervalDays;
+    document.getElementById('taskIntervalStart').value = ev.startDate;
+  }
 
   document.getElementById('addBtn').textContent = 'Salvar alterações';
   document.getElementById('cancelEditBtn').style.display = 'inline-block';
@@ -1042,6 +1068,12 @@ async function addTask(){
     const dateVal = document.getElementById('taskAnnualDate').value;
     if(!dateVal) return;
     ev.mmdd = dateVal.slice(5);
+  } else if(freq === 'personalizado'){
+    const interval = parseInt(document.getElementById('taskInterval').value, 10);
+    const startVal = document.getElementById('taskIntervalStart').value;
+    if(!interval || interval < 2 || !startVal) return;
+    ev.intervalDays = interval;
+    ev.startDate = startVal;
   }
 
   if(editingEventId){
@@ -1351,6 +1383,10 @@ function buildEventICS(ev){
     start = new Date(now.getFullYear(), mo-1, da, h, m, 0);
     if(start < now) start = new Date(now.getFullYear()+1, mo-1, da, h, m, 0);
     rrule = 'RRULE:FREQ=YEARLY';
+  } else if(ev.freq === 'personalizado'){
+    const [y,mo,da] = ev.startDate.split('-').map(Number);
+    start = new Date(y, mo-1, da, h, m, 0);
+    rrule = `RRULE:FREQ=DAILY;INTERVAL=${ev.intervalDays}`;
   }
 
   const end = new Date(start.getTime() + 30*60000);
@@ -1516,6 +1552,10 @@ async function syncEventToGoogle(ev){
     start = new Date(now.getFullYear(), mo-1, da, h, m);
     if(start < now) start = new Date(now.getFullYear()+1, mo-1, da, h, m);
     recurrence = ['RRULE:FREQ=YEARLY'];
+  } else if(ev.freq === 'personalizado'){
+    const [y,mo,da] = ev.startDate.split('-').map(Number);
+    start = new Date(y, mo-1, da, h, m);
+    recurrence = [`RRULE:FREQ=DAILY;INTERVAL=${ev.intervalDays}`];
   }
 
   const end = new Date(start.getTime() + 30*60000);
