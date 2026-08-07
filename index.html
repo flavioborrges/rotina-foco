@@ -9,6 +9,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -138,6 +139,19 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
 .fatura-history li:last-child{border-bottom:none;}
 .fatura-ok{color:var(--success);font-weight:700;}
 .fatura-over{color:var(--danger);font-weight:700;}
+
+.finance-indicator-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;}
+.indicator-card{background:var(--bg-panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;}
+.indicator-label{font-size:11.5px;color:var(--text-muted);margin-bottom:6px;}
+.indicator-value{font-family:'Fraunces',serif;font-size:22px;font-weight:600;line-height:1.1;}
+.indicator-delta{font-size:12px;margin-top:5px;font-weight:700;}
+.indicator-delta.up{color:var(--danger);}
+.indicator-delta.down{color:var(--success);}
+.indicator-delta.neutral{color:var(--text-muted);}
+
+.alert-card{display:flex;gap:10px;align-items:flex-start;background:rgba(229,72,77,0.08);border:1px solid rgba(229,72,77,0.3);border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:13.5px;}
+.alert-card.warn{background:rgba(201,130,31,0.08);border-color:rgba(201,130,31,0.3);}
+.alert-card.info{background:rgba(30,158,144,0.08);border-color:rgba(30,158,144,0.3);}
 
 .app-layout{display:flex;min-height:100vh;}
 .sidebar{
@@ -371,8 +385,10 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
         <button class="small-btn" id="anivGoogleSyncBtn">🔗 Sincronizar com Google Calendar</button>
       </div>
       <div class="item-sub" id="anivGoogleStatus"></div>
+      <div class="item-sub" id="anivMonthLabel" style="font-weight:700;margin-bottom:6px;"></div>
       <ul class="task-list" id="anivList"></ul>
       <div class="empty" id="anivEmpty" style="display:none;">Nenhum aniversário cadastrado ainda.</div>
+      <div class="item-sub" style="margin-top:10px;">Cadastrados no total: <span id="anivTotalCount">0</span> (todos os meses continuam salvos, só a lista abaixo mostra o mês atual)</div>
     </div>
 
     <div id="vincPanel" style="display:none;">
@@ -401,11 +417,9 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
 
   <section class="section-panel" data-section="financeiro" style="display:none;">
   <div class="card">
-    <h2>Financeiro</h2>
+    <h2>Metas</h2>
     <div class="sub">Sua caminhada até o carro e a casa própria</div>
-
     <div id="goalsList"></div>
-
     <div class="add-box">
       <div class="add-row">
         <div class="field-col">
@@ -423,18 +437,96 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
         <button id="goalAddBtn">Add</button>
       </div>
     </div>
+  </div>
 
-    <h2 style="margin-top:26px;">Fatura do cartão</h2>
+  <div class="card">
+    <h2>Resumo do mês</h2>
+    <div class="sub">Como esse mês está indo, de relance</div>
+    <div id="financeIndicators" class="finance-indicator-row"></div>
+    <div id="financeAlerts"></div>
+  </div>
+
+  <div class="card">
+    <h2>Lançar gasto avulso</h2>
+    <div class="sub">Pra quando não quer esperar a fatura fechar pra registrar algo</div>
+    <div class="add-box">
+      <div class="add-row">
+        <div class="field-col">
+          <span class="field-label">Descrição</span>
+          <input type="text" id="quickExpDesc" placeholder="Ex: Uber, Farmácia...">
+        </div>
+        <div class="field-col" style="max-width:150px;">
+          <span class="field-label">Categoria</span>
+          <select id="quickExpCategory">
+            <option>Restaurantes</option>
+            <option>Lazer</option>
+            <option>Transporte</option>
+            <option>Supermercados</option>
+            <option>Saúde</option>
+            <option>Serviços</option>
+            <option>Vestuário</option>
+            <option>Viagens</option>
+            <option>Bancos</option>
+            <option>Outros</option>
+          </select>
+        </div>
+        <div class="field-col" style="max-width:130px;">
+          <span class="field-label">Valor (R$)</span>
+          <input type="number" id="quickExpValue" placeholder="0,00">
+        </div>
+        <div class="field-col" style="max-width:150px;">
+          <span class="field-label">Data</span>
+          <input type="date" id="quickExpDate">
+        </div>
+        <button id="quickExpAddBtn">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fatura do cartão</h2>
     <div class="sub">Meta: manter no máximo <span id="faturaCapLabel">R$ 6.000,00</span> por mês</div>
     <div class="fatura-box">
+      <div class="fatura-row" style="align-items:flex-end;">
+        <div class="field-col">
+          <span class="field-label">Carregar PDF da fatura (Ourocard BB)</span>
+          <input type="file" id="faturaPdfInput" accept="application/pdf" style="padding:6px 0;">
+        </div>
+        <button id="faturaPdfBtn">📄 Ler PDF</button>
+      </div>
+      <div class="item-sub" id="faturaPdfStatus" style="margin-bottom:14px;"></div>
+
       <div class="fatura-row">
         <input type="month" id="faturaMonth">
         <input type="number" id="faturaValue" placeholder="Valor da fatura (R$)">
         <button id="faturaAddBtn">Registrar</button>
       </div>
-      <div id="faturaChart" style="margin-bottom:14px;"></div>
-      <ul class="fatura-history" id="faturaHistory"></ul>
     </div>
+  </div>
+
+  <div class="card">
+    <h2>Evolução mensal</h2>
+    <div class="sub">Comparação mês a mês, com variação percentual</div>
+    <div id="faturaChart"></div>
+    <ul class="fatura-history" id="faturaHistory"></ul>
+  </div>
+
+  <div class="card">
+    <h2>Por categoria este mês</h2>
+    <div class="sub">Onde o dinheiro foi em <span id="catMonthLabel"></span></div>
+    <div id="categoryChartMonth"></div>
+  </div>
+
+  <div class="card">
+    <h2>Histórico por categoria</h2>
+    <div class="sub">Soma de tudo que já foi carregado, todas as categorias</div>
+    <div id="categoryChart"></div>
+  </div>
+
+  <div class="card">
+    <h2>Gastos que mais se repetem</h2>
+    <div class="sub">Assinaturas e cobranças recorrentes identificadas</div>
+    <ul class="fatura-history" id="recurringSpendList"></ul>
   </div>
   </section>
 
@@ -652,6 +744,7 @@ async function loadState(){
   }
   if(!state.faturaCap) state.faturaCap = 6000;
   if(!state.faturaLog) state.faturaLog = {};
+  if(!state.faturaTransactions) state.faturaTransactions = {};
   ensureDay(todayKey());
 
   if(!driveFileId){
@@ -1125,23 +1218,40 @@ function renderAniv(){
   const ul = document.getElementById('anivList');
   const empty = document.getElementById('anivEmpty');
   ul.innerHTML = '';
-  empty.style.display = state.birthdays.length === 0 ? 'block' : 'none';
   renderTodayBirthdays();
 
-  state.birthdays
-    .slice()
-    .sort((a,b)=> nextBirthdayOccurrence(a.mmdd) - nextBirthdayOccurrence(b.mmdd))
-    .forEach(b=>{
-      const next = nextBirthdayOccurrence(b.mmdd);
-      const dleft = daysBetween(todayDateObj(), next);
-      const [m,d] = b.mmdd.split('-');
-      const dateLabel = `${parseInt(d,10)} de ${MONTH_NAMES[parseInt(m,10)-1]}`;
+  const today = todayDateObj();
+  const currentMonth = today.getMonth() + 1;
+  const currentYear = today.getFullYear();
+
+  const visible = state.birthdays
+    .map(b=>{
+      const [m,d] = b.mmdd.split('-').map(Number);
+      const occurrence = new Date(currentYear, m-1, d);
+      const daysPassed = daysBetween(occurrence, today); // positivo = já passou, negativo = ainda vai acontecer
+      return { b, m, d, daysPassed };
+    })
+    .filter(x => x.m === currentMonth && x.daysPassed <= 1);
+
+  document.getElementById('anivMonthLabel').textContent = `Aniversariantes de ${MONTH_NAMES[currentMonth-1]}`;
+  document.getElementById('anivTotalCount').textContent = state.birthdays.length;
+
+  empty.style.display = visible.length === 0 ? 'block' : 'none';
+  empty.textContent = state.birthdays.length === 0
+    ? 'Nenhum aniversário cadastrado ainda.'
+    : `Ninguém no seu círculo faz aniversário em ${MONTH_NAMES[currentMonth-1]} (ou já passou há mais de 1 dia).`;
+
+  visible
+    .sort((a,b)=> a.d - b.d)
+    .forEach(({b, m, d, daysPassed})=>{
+      const dateLabel = `${d} de ${MONTH_NAMES[m-1]}`;
       const li = document.createElement('li');
       let badge = '';
-      if(dleft === 0) badge = '<span class="badge-due">hoje!</span>';
-      else if(dleft <= 2) badge = `<span class="badge-due">em ${dleft}d</span>`;
-      else if(dleft <= b.noticeDays) badge = `<span class="badge-warn">em ${dleft}d</span>`;
-      else badge = `<span class="badge-ok">em ${dleft}d</span>`;
+      if(daysPassed === 1) badge = '<span class="badge-warn">foi ontem</span>';
+      else if(daysPassed === 0) badge = '<span class="badge-due">hoje!</span>';
+      else if(-daysPassed <= 2) badge = `<span class="badge-due">em ${-daysPassed}d</span>`;
+      else if(-daysPassed <= b.noticeDays) badge = `<span class="badge-warn">em ${-daysPassed}d</span>`;
+      else badge = `<span class="badge-ok">em ${-daysPassed}d</span>`;
       li.innerHTML = `
         <span>🎂 ${b.name}<div class="item-sub">${dateLabel} · avisa ${b.noticeDays}d antes</div></span>
         <span class="meta">${badge}<button class="del">✕</button></span>
@@ -1249,6 +1359,11 @@ function renderBanner(){
       alerts.push({ type:'contact', html:`💬 Hora de falar com <b>${c.name}</b> (${label})` });
     }
   });
+
+  const curMonth = todayKey().slice(0,7);
+  if(state.faturaLog && state.faturaLog[curMonth] !== undefined && state.faturaLog[curMonth] > state.faturaCap){
+    alerts.push({ type:'spend', html: `💳 A fatura desse mês já passou do teto: <b>${formatBRL(state.faturaLog[curMonth])}</b> de ${formatBRL(state.faturaCap)}` });
+  }
 
   if(alerts.length === 0) return;
   alerts.forEach(a=>{
@@ -1672,27 +1787,308 @@ async function addGoal(){
 }
 
 /* ---------- Fatura mensal ---------- */
+/* ---------- Leitura de PDF da fatura (Ourocard BB) ---------- */
+const FATURA_CATEGORY_HEADERS = new Set(['Bancos','Lazer','Restaurantes','Saúde','Serviços','Supermercados','Transporte','Vestuário','Viagens','Outros lançamentos','Compras parceladas','Pagamentos/Créditos']);
+
+function parseValorBR(str){
+  return parseFloat(str.replace(/\./g,'').replace(',', '.'));
+}
+
+async function extractPdfText(arrayBuffer){
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let fullText = '';
+  for(let p=1; p<=pdf.numPages; p++){
+    const page = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    const rows = {};
+    content.items.forEach(item=>{
+      const y = Math.round(item.transform[5]);
+      if(!rows[y]) rows[y] = [];
+      rows[y].push({ x:item.transform[4], str:item.str });
+    });
+    const ys = Object.keys(rows).map(Number).sort((a,b)=>b-a);
+    ys.forEach(y=>{
+      const rowItems = rows[y].sort((a,b)=>a.x-b.x);
+      fullText += rowItems.map(it=>it.str).join(' ') + '\n';
+    });
+  }
+  return fullText;
+}
+
+function parseFaturaText(text){
+  const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
+  let category = 'Outros';
+  const transactions = [];
+  let total = null;
+  const txRe = /^(\d{2}\/\d{2})\s+(.+?)\s+R\$\s*(-?[\d.,]+)\s*$/;
+
+  lines.forEach(line=>{
+    if(FATURA_CATEGORY_HEADERS.has(line)){ category = line; return; }
+    const totalMatch = line.match(/Total da Fatura\s+R\$\s*([\d.,]+)/i);
+    if(totalMatch){ total = parseValorBR(totalMatch[1]); return; }
+    const m = line.match(txRe);
+    if(m){
+      const value = parseValorBR(m[3]);
+      if(value < 0) return; // créditos/pagamentos, não é gasto
+      transactions.push({ date:m[1], category, description:m[2].trim(), value });
+    }
+  });
+  return { transactions, total };
+}
+
+async function handleFaturaPdfUpload(){
+  const fileInput = document.getElementById('faturaPdfInput');
+  const status = document.getElementById('faturaPdfStatus');
+  const file = fileInput.files[0];
+  if(!file){ status.textContent = 'Selecione um arquivo PDF primeiro.'; return; }
+
+  status.textContent = 'Lendo o PDF...';
+  try{
+    const buffer = await file.arrayBuffer();
+    const text = await extractPdfText(buffer);
+    const { transactions, total } = parseFaturaText(text);
+
+    if(transactions.length === 0){
+      status.textContent = 'Não consegui reconhecer nenhum lançamento nesse PDF. Confira se é uma fatura do Ourocard BB no formato padrão.';
+      return;
+    }
+
+    const monthKey = document.getElementById('faturaMonth').value || todayKey().slice(0,7);
+    if(!state.faturaTransactions) state.faturaTransactions = {};
+    state.faturaTransactions[monthKey] = transactions;
+
+    if(total !== null){
+      document.getElementById('faturaValue').value = total;
+    }
+
+    await saveState();
+    status.textContent = `Li ${transactions.length} lançamento(s)${total !== null ? `, total de ${formatBRL(total)}` : ''}. Clique em "Registrar" pra confirmar o mês, ou ajuste o valor se precisar.`;
+    renderSpendingAnalysis();
+    renderFinanceIndicators();
+  }catch(e){
+    console.error(e);
+    status.textContent = 'Erro ao ler esse PDF. Confira se o arquivo não está corrompido ou protegido por senha.';
+  }
+}
+
+function buildCategoryBarsSVG(catEntries){
+  if(catEntries.length === 0) return `<div class="item-sub">Sem dados ainda.</div>`;
+  const total = catEntries.reduce((s,[,v])=>s+v, 0);
+  const maxCat = Math.max(...catEntries.map(e=>e[1])) * 1.1;
+  const barH = 26, gap = 10, W = 500;
+  const H = catEntries.length * (barH+gap) + gap;
+  let bars = '';
+  catEntries.forEach(([cat,val], i)=>{
+    const y = gap + i*(barH+gap);
+    const w = Math.max(4, (val/maxCat) * (W-190));
+    const pct = Math.round((val/total)*100);
+    bars += `
+      <text x="0" y="${y+barH/2+4}" font-size="11.5" fill="var(--text-primary)">${cat}</text>
+      <rect x="150" y="${y}" width="${w}" height="${barH}" rx="5" fill="var(--teal)" opacity="0.85"/>
+      <text x="${150+w+8}" y="${y+barH/2+4}" font-size="11" fill="var(--text-muted)">${formatBRL(val)} (${pct}%)</text>
+    `;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">${bars}</svg>`;
+}
+
+function monthKeyOffset(monthKey, offset){
+  const [y,m] = monthKey.split('-').map(Number);
+  const d = new Date(y, m-1+offset, 1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+
+function renderFinanceIndicators(){
+  const wrap = document.getElementById('financeIndicators');
+  const alertsWrap = document.getElementById('financeAlerts');
+  const currentMonthKey = todayKey().slice(0,7);
+  const currentTx = (state.faturaTransactions && state.faturaTransactions[currentMonthKey]) || [];
+  const currentTotal = state.faturaLog[currentMonthKey] !== undefined
+    ? state.faturaLog[currentMonthKey]
+    : currentTx.reduce((s,t)=>s+t.value, 0);
+
+  const prevMonthKey = monthKeyOffset(currentMonthKey, -1);
+  const prevTotal = state.faturaLog[prevMonthKey];
+
+  const last3Keys = [1,2,3].map(n=>monthKeyOffset(currentMonthKey,-n)).filter(k=>state.faturaLog[k]!==undefined);
+  const last3Avg = last3Keys.length ? last3Keys.reduce((s,k)=>s+state.faturaLog[k],0)/last3Keys.length : null;
+
+  const catTotalsMonth = {};
+  currentTx.forEach(t=>{ catTotalsMonth[t.category] = (catTotalsMonth[t.category]||0)+t.value; });
+  const topCatEntry = Object.entries(catTotalsMonth).sort((a,b)=>b[1]-a[1])[0];
+
+  const pctCap = state.faturaCap ? Math.round((currentTotal/state.faturaCap)*100) : 0;
+  const pctVsPrev = (prevTotal!==undefined && prevTotal>0) ? Math.round(((currentTotal-prevTotal)/prevTotal)*100) : null;
+
+  function deltaSpan(pct, invert){
+    if(pct === null) return `<span class="indicator-delta neutral">sem dado do mês anterior</span>`;
+    const bad = invert ? pct < 0 : pct > 0;
+    const cls = pct === 0 ? 'neutral' : (bad ? 'up' : 'down');
+    const arrow = pct > 0 ? '↑' : pct < 0 ? '↓' : '';
+    return `<span class="indicator-delta ${cls}">${arrow} ${Math.abs(pct)}% vs. mês anterior</span>`;
+  }
+
+  wrap.innerHTML = `
+    <div class="indicator-card">
+      <div class="indicator-label">Gasto este mês</div>
+      <div class="indicator-value">${formatBRL(currentTotal)}</div>
+      ${deltaSpan(pctVsPrev)}
+    </div>
+    <div class="indicator-card">
+      <div class="indicator-label">% do teto (${formatBRL(state.faturaCap)})</div>
+      <div class="indicator-value" style="color:${pctCap>100?'var(--danger)':pctCap>80?'var(--amber)':'var(--success)'};">${pctCap}%</div>
+      <span class="indicator-delta neutral">${pctCap>100 ? 'acima do teto' : 'dentro do teto'}</span>
+    </div>
+    <div class="indicator-card">
+      <div class="indicator-label">Média últimos 3 meses</div>
+      <div class="indicator-value">${last3Avg!==null ? formatBRL(last3Avg) : '—'}</div>
+      <span class="indicator-delta neutral">${last3Keys.length} mês(es) considerado(s)</span>
+    </div>
+    <div class="indicator-card">
+      <div class="indicator-label">Maior categoria do mês</div>
+      <div class="indicator-value" style="font-size:16px;">${topCatEntry ? topCatEntry[0] : '—'}</div>
+      <span class="indicator-delta neutral">${topCatEntry ? formatBRL(topCatEntry[1]) : 'sem lançamentos ainda'}</span>
+    </div>
+  `;
+
+  // --- alertas ---
+  const alerts = [];
+  if(currentTotal > state.faturaCap){
+    alerts.push({ level:'danger', html: `💳 Você já passou do teto esse mês em <b>${formatBRL(currentTotal-state.faturaCap)}</b>.` });
+  }
+  if(pctVsPrev !== null && pctVsPrev >= 15){
+    alerts.push({ level:'warn', html: `📈 Gastando <b>${pctVsPrev}% a mais</b> que o mês passado.` });
+  } else if(pctVsPrev !== null && pctVsPrev <= -15){
+    alerts.push({ level:'info', html: `📉 Gastando <b>${Math.abs(pctVsPrev)}% a menos</b> que o mês passado — bom sinal.` });
+  }
+  if(topCatEntry && currentTotal > 0){
+    const share = Math.round((topCatEntry[1]/currentTotal)*100);
+    if(share >= 35){
+      alerts.push({ level:'warn', html: `🎯 <b>${topCatEntry[0]}</b> concentra <b>${share}%</b> dos seus gastos esse mês.` });
+    }
+  }
+  const allTxAll = Object.values(state.faturaTransactions || {}).flat();
+  if(allTxAll.length > 0){
+    const byDescAll = {};
+    allTxAll.forEach(t=>{
+      if(!byDescAll[t.description]) byDescAll[t.description] = 0;
+      byDescAll[t.description] += t.value;
+    });
+    const recurringTotal = Object.entries(byDescAll).filter(([,v])=>v>0).reduce((s,[d,v])=>{
+      const count = allTxAll.filter(t=>t.description===d).length;
+      return count >= 2 ? s+v : s;
+    }, 0);
+    const grandTotal = allTxAll.reduce((s,t)=>s+t.value,0);
+    const recurringShare = grandTotal>0 ? Math.round((recurringTotal/grandTotal)*100) : 0;
+    if(recurringShare >= 20){
+      alerts.push({ level:'info', html: `🔁 Gastos recorrentes somam <b>${formatBRL(recurringTotal)}</b> (${recurringShare}% do total carregado) — vale revisar assinaturas ativas.` });
+    }
+  }
+
+  alertsWrap.innerHTML = alerts.length === 0
+    ? `<div class="item-sub">Nenhum alerta por enquanto — segue assim.</div>`
+    : alerts.map(a=>`<div class="alert-card ${a.level==='danger'?'':a.level}">${a.html}</div>`).join('');
+}
+
+async function addQuickExpense(){
+  const desc = document.getElementById('quickExpDesc').value.trim();
+  const category = document.getElementById('quickExpCategory').value;
+  const value = parseFloat(document.getElementById('quickExpValue').value);
+  const dateVal = document.getElementById('quickExpDate').value || todayKey();
+  if(!desc || !value) return;
+
+  const monthKey = dateVal.slice(0,7);
+  if(!state.faturaTransactions) state.faturaTransactions = {};
+  if(!state.faturaTransactions[monthKey]) state.faturaTransactions[monthKey] = [];
+  const [,mo,da] = dateVal.split('-');
+  state.faturaTransactions[monthKey].push({ date: `${da}/${mo}`, category, description: desc, value });
+
+  document.getElementById('quickExpDesc').value = '';
+  document.getElementById('quickExpValue').value = '';
+
+  await saveState();
+  renderSpendingAnalysis();
+  renderFinanceIndicators();
+}
+
+function renderSpendingAnalysis(){
+  const catWrap = document.getElementById('categoryChart');
+  const catMonthWrap = document.getElementById('categoryChartMonth');
+  const recWrap = document.getElementById('recurringSpendList');
+  const allTx = Object.values(state.faturaTransactions || {}).flat();
+  const currentMonthKey = todayKey().slice(0,7);
+  const currentTx = (state.faturaTransactions && state.faturaTransactions[currentMonthKey]) || [];
+
+  document.getElementById('catMonthLabel').textContent = MONTH_NAMES[new Date().getMonth()];
+
+  const catTotalsMonth = {};
+  currentTx.forEach(t=>{ catTotalsMonth[t.category] = (catTotalsMonth[t.category]||0) + t.value; });
+  catMonthWrap.innerHTML = buildCategoryBarsSVG(Object.entries(catTotalsMonth).sort((a,b)=>b[1]-a[1]));
+
+  if(allTx.length === 0){
+    catWrap.innerHTML = `<div class="item-sub">Carregue um PDF de fatura ou lance um gasto avulso pra ver a análise.</div>`;
+    recWrap.innerHTML = '<li>Nada ainda.</li>';
+    return;
+  }
+
+  const catTotals = {};
+  allTx.forEach(t=>{ catTotals[t.category] = (catTotals[t.category]||0) + t.value; });
+  catWrap.innerHTML = buildCategoryBarsSVG(Object.entries(catTotals).sort((a,b)=>b[1]-a[1]));
+
+  const byDesc = {};
+  allTx.forEach(t=>{
+    if(!byDesc[t.description]) byDesc[t.description] = { count:0, total:0 };
+    byDesc[t.description].count++;
+    byDesc[t.description].total += t.value;
+  });
+  const topRecurring = Object.entries(byDesc)
+    .filter(([,d])=>d.count >= 2)
+    .sort((a,b)=> b[1].total - a[1].total)
+    .slice(0, 10);
+
+  if(topRecurring.length === 0){
+    recWrap.innerHTML = '<li>Nenhum gasto repetido identificado ainda (carregue mais de um mês pra ver padrões).</li>';
+  } else {
+    recWrap.innerHTML = topRecurring.map(([desc,d])=>`
+      <li><span>${desc}<div class="item-sub">${d.count}x registrado</div></span><span>${formatBRL(d.total)}</span></li>
+    `).join('');
+  }
+}
+
 function renderFaturaChart(months){
+
+
   const wrap = document.getElementById('faturaChart');
   if(months.length === 0){ wrap.innerHTML = ''; return; }
 
   const chronological = months.slice().sort().slice(-6); // últimos 6 meses, mais antigo primeiro
   const values = chronological.map(m=>state.faturaLog[m]);
   const maxVal = Math.max(...values, state.faturaCap) * 1.15;
-  const W = 500, H = 180, padL = 10, padB = 26, barGap = 14;
+  const W = 500, H = 210, padL = 10, padT = 38, padB = 26, barGap = 14;
   const barW = (W - padL*2 - barGap*(chronological.length-1)) / chronological.length;
-  const capY = H - padB - (state.faturaCap / maxVal) * (H - padB - 10);
+  const capY = padT + (H - padT - padB - 10) - (state.faturaCap / maxVal) * (H - padT - padB - 10);
 
   let bars = '';
   chronological.forEach((m,i)=>{
     const val = state.faturaLog[m];
-    const barH = (val / maxVal) * (H - padB - 10);
+    const barH = (val / maxVal) * (H - padT - padB - 10);
     const x = padL + i*(barW+barGap);
     const y = H - padB - barH;
     const over = val > state.faturaCap;
     const [yr, mo] = m.split('-');
     const label = MONTH_NAMES[parseInt(mo,10)-1].slice(0,3);
+    let deltaLabel = '';
+    if(i > 0){
+      const prevVal = state.faturaLog[chronological[i-1]];
+      if(prevVal > 0){
+        const pct = Math.round(((val-prevVal)/prevVal)*100);
+        const arrow = pct > 0 ? '↑' : pct < 0 ? '↓' : '';
+        const color = pct > 0 ? 'var(--danger)' : pct < 0 ? 'var(--success)' : '#6B7280';
+        deltaLabel = `<text x="${x+barW/2}" y="${y-18}" text-anchor="middle" font-size="10" fill="${color}" font-weight="700">${arrow}${Math.abs(pct)}%</text>`;
+      }
+    }
     bars += `
+      <text x="${x+barW/2}" y="${y-5}" text-anchor="middle" font-size="10" fill="var(--text-primary)">${formatBRL(val)}</text>
+      ${deltaLabel}
       <rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="4" fill="${over ? 'var(--danger)' : 'var(--success)'}" opacity="0.85"/>
       <text x="${x+barW/2}" y="${H-padB+16}" text-anchor="middle" font-size="11" fill="#6B7280">${label}</text>
     `;
@@ -1737,6 +2133,8 @@ async function addFatura(){
   document.getElementById('faturaValue').value = '';
   await saveState();
   renderFatura();
+  renderFinanceIndicators();
+  renderBanner();
 }
 
 function yesterdayKey(){
@@ -1787,6 +2185,12 @@ async function boot(){
   renderBanner();
   renderGoals();
   renderFatura();
+  renderSpendingAnalysis();
+  renderFinanceIndicators();
+  document.getElementById('quickExpDate').value = todayKey();
+  if(typeof pdfjsLib !== 'undefined'){
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
 
   setInterval(renderRing, 30000);
   requestNotifPermission();
@@ -1870,6 +2274,8 @@ async function boot(){
 
   document.getElementById('goalAddBtn').addEventListener('click', addGoal);
   document.getElementById('faturaAddBtn').addEventListener('click', addFatura);
+  document.getElementById('faturaPdfBtn').addEventListener('click', handleFaturaPdfUpload);
+  document.getElementById('quickExpAddBtn').addEventListener('click', addQuickExpense);
 
   switchPeoplePanel('aniversarios');
 }
