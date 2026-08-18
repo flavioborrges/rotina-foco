@@ -212,6 +212,7 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
     <div class="sidebar-brand">Rotina & Foco</div>
     <button class="nav-item active" data-nav="pessoal">🧍 Pessoal</button>
     <button class="nav-item" data-nav="profissional">💼 Profissional</button>
+    <button class="nav-item" data-nav="concursos">🎯 Concursos</button>
     <button class="nav-item" data-nav="financeiro">💰 Financeiro</button>
     <button class="nav-item" data-nav="relacionamentos">🤝 Relacionamentos</button>
   </nav>
@@ -415,7 +416,121 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
   </div>
   </section>
 
-  <section class="section-panel" data-section="financeiro" style="display:none;">
+  <section class="section-panel" data-section="concursos" style="display:none;">
+<div class="card">
+<h2>Concursos</h2>
+<div class="sub">Editais, estudo e desempenho, tudo num só lugar</div>
+<div class="tab-row">
+<button class="tab active-t" id="tabCp_editais" data-cp="editais">Editais</button>
+<button class="tab" id="tabCp_estudo" data-cp="estudo">Estudo</button>
+<button class="tab" id="tabCp_questoes" data-cp="questoes">Questões</button>
+<button class="tab" id="tabCp_desempenho" data-cp="desempenho">Desempenho</button>
+</div>
+
+<div id="editaisPanel">
+<div id="nextEditalBox" style="margin-bottom:20px;"></div>
+<div class="add-box">
+<div class="add-row">
+<div class="field-col" style="flex:2;min-width:200px;">
+<span class="field-label">Órgão / Cargo</span>
+<input type="text" id="editalNome" placeholder="Ex: TJDFT — Analista Judiciário">
+</div>
+<div class="field-col">
+<span class="field-label">Banca</span>
+<input type="text" id="editalBanca" placeholder="Ex: CEBRASPE">
+</div>
+<div class="field-col" style="max-width:150px;">
+<span class="field-label">Data da prova</span>
+<input type="date" id="editalData">
+</div>
+<div class="field-col" style="max-width:170px;">
+<span class="field-label">Status</span>
+<select id="editalStatus">
+<option value="aguardando">Aguardando edital</option>
+<option value="inscrito" selected>Inscrito</option>
+<option value="estudando">Estudando</option>
+<option value="concluido">Concluído</option>
+</select>
+</div>
+<button id="editalAddBtn">Add</button>
+</div>
+<div class="field-col" style="margin-top:10px;">
+<span class="field-label">Link do edital (opcional)</span>
+<input type="text" id="editalLink" placeholder="https://...">
+</div>
+</div>
+<ul class="task-list" id="editaisList"></ul>
+<div class="empty" id="editaisEmpty" style="display:none;">Nenhum edital cadastrado ainda.</div>
+</div>
+
+<div id="estudoPanel" style="display:none;">
+<div class="add-box">
+<div class="add-row">
+<div class="field-col">
+<span class="field-label">Matéria</span>
+<input type="text" id="estudoMateria" placeholder="Ex: Direito Constitucional">
+</div>
+<div class="field-col" style="max-width:150px;">
+<span class="field-label">Data</span>
+<input type="date" id="estudoData">
+</div>
+<div class="field-col" style="max-width:130px;">
+<span class="field-label">Duração (min)</span>
+<input type="number" id="estudoMin" placeholder="60">
+</div>
+<button id="estudoAddBtn">Add</button>
+</div>
+<div class="field-col" style="margin-top:10px;">
+<span class="field-label">Tópico (opcional)</span>
+<input type="text" id="estudoTopico" placeholder="Ex: Controle de constitucionalidade">
+</div>
+</div>
+<div class="item-sub" style="font-weight:700;margin-bottom:10px;">Horas por matéria</div>
+<div id="estudoBars" style="margin-bottom:20px;"></div>
+<ul class="task-list" id="estudoList"></ul>
+<div class="empty" id="estudoEmpty" style="display:none;">Nenhuma sessão registrada ainda.</div>
+</div>
+
+<div id="questoesPanel" style="display:none;">
+<div class="add-box">
+<div class="add-row">
+<div class="field-col">
+<span class="field-label">Matéria</span>
+<input type="text" id="questaoMateria" placeholder="Ex: Raciocínio Lógico">
+</div>
+<div class="field-col">
+<span class="field-label">Banca (opcional)</span>
+<input type="text" id="questaoBanca" placeholder="Ex: FGV">
+</div>
+<div class="field-col" style="max-width:110px;">
+<span class="field-label">Total</span>
+<input type="number" id="questaoTotal" placeholder="20">
+</div>
+<div class="field-col" style="max-width:110px;">
+<span class="field-label">Acertos</span>
+<input type="number" id="questaoAcertos" placeholder="16">
+</div>
+<div class="field-col" style="max-width:150px;">
+<span class="field-label">Data</span>
+<input type="date" id="questaoData">
+</div>
+<button id="questaoAddBtn">Add</button>
+</div>
+</div>
+<div class="item-sub" style="font-weight:700;margin-bottom:10px;">Aproveitamento por matéria</div>
+<div id="questoesBars" style="margin-bottom:20px;"></div>
+<ul class="task-list" id="questoesList"></ul>
+<div class="empty" id="questoesEmpty" style="display:none;">Nenhum registro ainda.</div>
+</div>
+
+<div id="desempenhoPanel" style="display:none;">
+<div class="item-sub" style="margin-bottom:14px;">Cruzando horas estudadas com aproveitamento, matéria a matéria</div>
+<ul class="fatura-history" id="desempenhoList"></ul>
+<div class="empty" id="desempenhoEmpty" style="display:none;">Registre estudos e questões pra ver o cruzamento aqui.</div>
+</div>
+</div>
+</section>
+<section class="section-panel" data-section="financeiro" style="display:none;">
   <div class="card">
     <h2>Metas</h2>
     <div class="sub">Sua caminhada até o carro e a casa própria</div>
@@ -745,6 +860,9 @@ async function loadState(){
   if(!state.faturaCap) state.faturaCap = 6000;
   if(!state.faturaLog) state.faturaLog = {};
   if(!state.faturaTransactions) state.faturaTransactions = {};
+  if(!state.editais) state.editais = [];
+  if(!state.estudos) state.estudos = [];
+  if(!state.questoes) state.questoes = [];
   ensureDay(todayKey());
 
   if(!driveFileId){
@@ -2170,6 +2288,227 @@ function maybeShowSleepPrompt(){
   };
 }
 
+/* ---------- Concursos ---------- */
+let currentConcursoPanel = "editais";
+const CP_STATUS_LABELS = { aguardando:'Aguardando edital', inscrito:'Inscrito', estudando:'Estudando', concluido:'Concluído' };
+
+function fmtDatePt(iso){
+  if(!iso) return '\u2014';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function daysUntilDate(iso){
+  const target = new Date(iso+'T00:00:00');
+  return Math.round((target - todayDateObj())/86400000);
+}
+
+function switchConcursoPanel(p){
+  currentConcursoPanel = p;
+  ['editais','estudo','questoes','desempenho'].forEach(name=>{
+    document.getElementById('tabCp_'+name).classList.toggle('active-t', p===name);
+    document.getElementById(name+'Panel').style.display = p===name ? 'block' : 'none';
+  });
+}
+
+function renderNextEdital(){
+  const box = document.getElementById('nextEditalBox');
+  const upcoming = state.editais.filter(e=>daysUntilDate(e.data)>=0).sort((a,b)=>a.data.localeCompare(b.data));
+  if(upcoming.length===0){
+    box.innerHTML = `<div class="item-sub">Nenhum edital com prova futura cadastrada ainda.</div>`;
+    return;
+  }
+  const e = upcoming[0];
+  const d = daysUntilDate(e.data);
+  const color = d<=30 ? 'var(--danger)' : d<=90 ? 'var(--amber)' : 'var(--teal)';
+  const circumference = 301.6;
+  const pct = Math.min(1, Math.max(0, 1-(d/180)));
+  const offset = circumference - pct*circumference;
+  box.innerHTML = `
+    <div class="ring-row" style="margin-bottom:0;">
+      <div class="ring-wrap">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="48" fill="none" stroke="#E1E4EC" stroke-width="9"/>
+          <circle cx="55" cy="55" r="48" fill="none" stroke="${color}" stroke-width="9"
+            stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+            transform="rotate(-90 55 55)"/>
+        </svg>
+        <div class="ring-label">
+          <div class="big">${d}</div>
+          <div class="small">dias p/ prova</div>
+        </div>
+      </div>
+      <div class="status-text"><b>${e.nome}</b><br>${e.banca?e.banca+' &middot; ':''}${fmtDatePt(e.data)}</div>
+    </div>`;
+}
+
+function renderEditais(){
+  renderNextEdital();
+  const ul = document.getElementById('editaisList');
+  const empty = document.getElementById('editaisEmpty');
+  const sorted = [...state.editais].sort((a,b)=>a.data.localeCompare(b.data));
+  empty.style.display = sorted.length===0 ? 'block' : 'none';
+  ul.innerHTML = '';
+  sorted.forEach(e=>{
+    const d = daysUntilDate(e.data);
+    const faltamTxt = d>0 ? `${d}d` : d===0 ? 'Hoje' : 'Encerrado';
+    const badgeClass = d<=30 ? 'badge-due' : d<=90 ? 'badge-warn' : 'badge-ok';
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span><b>${e.nome}</b>${e.banca?` &middot; ${e.banca}`:''}${e.link?` &middot; <a href="${e.link}" target="_blank" style="color:var(--teal);">edital ↗</a>`:''}
+        <div class="item-sub">${fmtDatePt(e.data)}</div></span>
+      <span class="meta">
+        <span class="${badgeClass}">${faltamTxt}</span>
+        <span class="badge-rec">${CP_STATUS_LABELS[e.status]}</span>
+        <button class="del">✕</button>
+      </span>`;
+    li.querySelector('.del').addEventListener('click', async ()=>{
+      if(!confirm(`Excluir "${e.nome}"?`)) return;
+      state.editais = state.editais.filter(x=>x.id!==e.id);
+      await saveState(); renderEditais();
+    });
+    ul.appendChild(li);
+  });
+}
+
+async function addEdital(){
+  const nome = document.getElementById('editalNome').value.trim();
+  const data = document.getElementById('editalData').value;
+  if(!nome || !data) return;
+  state.editais.push({
+    id: uid(), nome, data,
+    banca: document.getElementById('editalBanca').value.trim(),
+    status: document.getElementById('editalStatus').value,
+    link: document.getElementById('editalLink').value.trim()
+  });
+  document.getElementById('editalNome').value='';
+  document.getElementById('editalBanca').value='';
+  document.getElementById('editalData').value='';
+  document.getElementById('editalLink').value='';
+  document.getElementById('editalStatus').value='inscrito';
+  await saveState(); renderEditais();
+}
+
+function renderEstudo(){
+  const ul = document.getElementById('estudoList');
+  const empty = document.getElementById('estudoEmpty');
+  const sorted = [...state.estudos].sort((a,b)=>b.data.localeCompare(a.data)).slice(0,15);
+  empty.style.display = sorted.length===0 ? 'block' : 'none';
+  ul.innerHTML = '';
+  sorted.forEach(s=>{
+    const li = document.createElement('li');
+    const h = Math.floor(s.minutos/60), m = s.minutos%60;
+    li.innerHTML = `
+      <span><b>${s.materia}</b>${s.topico?` &middot; ${s.topico}`:''}<div class="item-sub">${fmtDatePt(s.data)}</div></span>
+      <span class="meta"><span class="badge-ok">${h}h${String(m).padStart(2,'0')}</span><button class="del">✕</button></span>`;
+    li.querySelector('.del').addEventListener('click', async ()=>{
+      state.estudos = state.estudos.filter(x=>x.id!==s.id);
+      await saveState(); renderEstudo(); renderDesempenho();
+    });
+    ul.appendChild(li);
+  });
+  const bySubj = {};
+  state.estudos.forEach(s=>{ bySubj[s.materia] = (bySubj[s.materia]||0) + s.minutos; });
+  const entries = Object.entries(bySubj).sort((a,b)=>b[1]-a[1]);
+  const max = entries.length ? entries[0][1] : 1;
+  document.getElementById('estudoBars').innerHTML = entries.length ? entries.map(([m,min])=>{
+    const h = Math.floor(min/60), mm = min%60;
+    return `<div class="goal-card" style="padding:12px 14px;margin-bottom:10px;">
+      <div class="goal-top"><span class="goal-name" style="font-size:14px;">${m}</span><span class="goal-nums">${h}h${String(mm).padStart(2,'0')}</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${(min/max*100).toFixed(0)}%;background:linear-gradient(90deg,var(--amber),var(--teal));"></div></div>
+    </div>`;
+  }).join('') : `<div class="empty">Sem dados ainda.</div>`;
+}
+
+async function addEstudo(){
+  const materia = document.getElementById('estudoMateria').value.trim();
+  const min = parseInt(document.getElementById('estudoMin').value,10);
+  if(!materia || !min) return;
+  state.estudos.push({
+    id: uid(), materia, minutos: min,
+    data: document.getElementById('estudoData').value || todayKey(),
+    topico: document.getElementById('estudoTopico').value.trim()
+  });
+  document.getElementById('estudoMateria').value='';
+  document.getElementById('estudoMin').value='';
+  document.getElementById('estudoTopico').value='';
+  await saveState(); renderEstudo(); renderDesempenho();
+}
+
+function renderQuestoes(){
+  const ul = document.getElementById('questoesList');
+  const empty = document.getElementById('questoesEmpty');
+  const sorted = [...state.questoes].sort((a,b)=>b.data.localeCompare(a.data)).slice(0,15);
+  empty.style.display = sorted.length===0 ? 'block' : 'none';
+  ul.innerHTML = '';
+  sorted.forEach(q=>{
+    const pct = Math.round(q.acertos/q.total*100);
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span><b>${q.materia}</b>${q.banca?` &middot; ${q.banca}`:''}<div class="item-sub">${fmtDatePt(q.data)}</div></span>
+      <span class="meta"><span class="badge-ok">${q.acertos}/${q.total} (${pct}%)</span><button class="del">✕</button></span>`;
+    li.querySelector('.del').addEventListener('click', async ()=>{
+      state.questoes = state.questoes.filter(x=>x.id!==q.id);
+      await saveState(); renderQuestoes(); renderDesempenho();
+    });
+    ul.appendChild(li);
+  });
+  const bySubj = {};
+  state.questoes.forEach(q=>{
+    if(!bySubj[q.materia]) bySubj[q.materia] = {total:0, acertos:0};
+    bySubj[q.materia].total += q.total; bySubj[q.materia].acertos += q.acertos;
+  });
+  const entries = Object.entries(bySubj);
+  document.getElementById('questoesBars').innerHTML = entries.length ? entries.map(([m,v])=>{
+    const pct = Math.round(v.acertos/v.total*100);
+    return `<div class="goal-card" style="padding:12px 14px;margin-bottom:10px;">
+      <div class="goal-top"><span class="goal-name" style="font-size:14px;">${m}</span><span class="goal-nums">${pct}%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;"></div></div>
+    </div>`;
+  }).join('') : `<div class="empty">Sem dados ainda.</div>`;
+}
+
+async function addQuestao(){
+  const materia = document.getElementById('questaoMateria').value.trim();
+  const total = parseInt(document.getElementById('questaoTotal').value,10);
+  const acertos = parseInt(document.getElementById('questaoAcertos').value,10);
+  if(!materia || !total || isNaN(acertos) || acertos>total) return;
+  state.questoes.push({
+    id: uid(), materia, total, acertos,
+    banca: document.getElementById('questaoBanca').value.trim(),
+    data: document.getElementById('questaoData').value || todayKey()
+  });
+  document.getElementById('questaoMateria').value='';
+  document.getElementById('questaoBanca').value='';
+  document.getElementById('questaoTotal').value='';
+  document.getElementById('questaoAcertos').value='';
+  await saveState(); renderQuestoes(); renderDesempenho();
+}
+
+function renderDesempenho(){
+  const subjects = new Set([...state.estudos.map(s=>s.materia), ...state.questoes.map(q=>q.materia)]);
+  const ul = document.getElementById('desempenhoList');
+  const empty = document.getElementById('desempenhoEmpty');
+  empty.style.display = subjects.size===0 ? 'block' : 'none';
+  const rows = [...subjects].map(m=>{
+    const min = state.estudos.filter(s=>s.materia===m).reduce((a,s)=>a+s.minutos,0);
+    const qs = state.questoes.filter(q=>q.materia===m);
+    const total = qs.reduce((a,q)=>a+q.total,0);
+    const acertos = qs.reduce((a,q)=>a+q.acertos,0);
+    const pct = total ? Math.round(acertos/total*100) : null;
+    return {m, min, total, pct};
+  }).sort((a,b)=>(a.pct===null?101:a.pct) - (b.pct===null?101:b.pct));
+  ul.innerHTML = rows.map(r=>{
+    const h = Math.floor(r.min/60), mm = r.min%60;
+    let diag = '<span style="color:var(--text-muted);">sem quest\u00f5es</span>';
+    if(r.pct!==null){
+      if(r.pct<60) diag = '<span style="color:var(--danger);font-weight:700;">\u26a0 priorizar revis\u00e3o</span>';
+      else if(r.pct<80) diag = '<span style="color:var(--amber);font-weight:700;">consolidando</span>';
+      else diag = '<span style="color:var(--success);font-weight:700;">\u2713 ponto forte</span>';
+    }
+    return `<li><span><b>${r.m}</b> \u2014 ${h}h${String(mm).padStart(2,'0')} estudadas, ${r.total} quest\u00f5es${r.pct!==null?` (${r.pct}%)`:''}</span><span>${diag}</span></li>`;
+  }).join('');
+}
+
 async function boot(){
   document.getElementById('todayPill').textContent = formatDatePretty();
   await loadState();
@@ -2187,6 +2526,12 @@ async function boot(){
   renderFatura();
   renderSpendingAnalysis();
   renderFinanceIndicators();
+  renderEditais();
+  renderEstudo();
+  renderQuestoes();
+  renderDesempenho();
+  document.getElementById('estudoData').value = todayKey();
+  document.getElementById('questaoData').value = todayKey();
   document.getElementById('quickExpDate').value = todayKey();
   if(typeof pdfjsLib !== 'undefined'){
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -2276,6 +2621,14 @@ async function boot(){
   document.getElementById('faturaAddBtn').addEventListener('click', addFatura);
   document.getElementById('faturaPdfBtn').addEventListener('click', handleFaturaPdfUpload);
   document.getElementById('quickExpAddBtn').addEventListener('click', addQuickExpense);
+
+  document.getElementById('editalAddBtn').addEventListener('click', addEdital);
+  document.getElementById('estudoAddBtn').addEventListener('click', addEstudo);
+  document.getElementById('questaoAddBtn').addEventListener('click', addQuestao);
+  document.getElementById('tabCp_editais').addEventListener('click', ()=>switchConcursoPanel('editais'));
+  document.getElementById('tabCp_estudo').addEventListener('click', ()=>switchConcursoPanel('estudo'));
+  document.getElementById('tabCp_questoes').addEventListener('click', ()=>switchConcursoPanel('questoes'));
+  document.getElementById('tabCp_desempenho').addEventListener('click', ()=>switchConcursoPanel('desempenho'));
 
   switchPeoplePanel('aniversarios');
 }
