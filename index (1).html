@@ -140,6 +140,19 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
 .fatura-ok{color:var(--success);font-weight:700;}
 .fatura-over{color:var(--danger);font-weight:700;}
 
+.finance-indicator-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;}
+.indicator-card{background:var(--bg-panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;}
+.indicator-label{font-size:11.5px;color:var(--text-muted);margin-bottom:6px;}
+.indicator-value{font-family:'Fraunces',serif;font-size:22px;font-weight:600;line-height:1.1;}
+.indicator-delta{font-size:12px;margin-top:5px;font-weight:700;}
+.indicator-delta.up{color:var(--danger);}
+.indicator-delta.down{color:var(--success);}
+.indicator-delta.neutral{color:var(--text-muted);}
+
+.alert-card{display:flex;gap:10px;align-items:flex-start;background:rgba(229,72,77,0.08);border:1px solid rgba(229,72,77,0.3);border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:13.5px;}
+.alert-card.warn{background:rgba(201,130,31,0.08);border-color:rgba(201,130,31,0.3);}
+.alert-card.info{background:rgba(30,158,144,0.08);border-color:rgba(30,158,144,0.3);}
+
 .app-layout{display:flex;min-height:100vh;}
 .sidebar{
   width:210px;flex:none;background:var(--bg-panel);border-right:1px solid var(--line);
@@ -199,6 +212,7 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
     <div class="sidebar-brand">Rotina & Foco</div>
     <button class="nav-item active" data-nav="pessoal">🧍 Pessoal</button>
     <button class="nav-item" data-nav="profissional">💼 Profissional</button>
+    <button class="nav-item" data-nav="concursos">🎯 Concursos</button>
     <button class="nav-item" data-nav="financeiro">💰 Financeiro</button>
     <button class="nav-item" data-nav="relacionamentos">🤝 Relacionamentos</button>
   </nav>
@@ -402,13 +416,125 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
   </div>
   </section>
 
-  <section class="section-panel" data-section="financeiro" style="display:none;">
+  <section class="section-panel" data-section="concursos" style="display:none;">
+<div class="card">
+<h2>Concursos</h2>
+<div class="sub">Editais, estudo e desempenho, tudo num só lugar</div>
+<div class="tab-row">
+<button class="tab active-t" id="tabCp_editais" data-cp="editais">Editais</button>
+<button class="tab" id="tabCp_estudo" data-cp="estudo">Estudo</button>
+<button class="tab" id="tabCp_questoes" data-cp="questoes">Questões</button>
+<button class="tab" id="tabCp_desempenho" data-cp="desempenho">Desempenho</button>
+</div>
+
+<div id="editaisPanel">
+<div id="nextEditalBox" style="margin-bottom:20px;"></div>
+<div class="add-box">
+<div class="add-row">
+<div class="field-col" style="flex:2;min-width:200px;">
+<span class="field-label">Órgão / Cargo</span>
+<input type="text" id="editalNome" placeholder="Ex: TJDFT — Analista Judiciário">
+</div>
+<div class="field-col">
+<span class="field-label">Banca</span>
+<input type="text" id="editalBanca" placeholder="Ex: CEBRASPE">
+</div>
+<div class="field-col" style="max-width:150px;">
+<span class="field-label">Data da prova</span>
+<input type="date" id="editalData">
+</div>
+<div class="field-col" style="max-width:170px;">
+<span class="field-label">Status</span>
+<select id="editalStatus">
+<option value="aguardando">Aguardando edital</option>
+<option value="inscrito" selected>Inscrito</option>
+<option value="estudando">Estudando</option>
+<option value="concluido">Concluído</option>
+</select>
+</div>
+<button id="editalAddBtn">Add</button>
+</div>
+<div class="field-col" style="margin-top:10px;">
+<span class="field-label">Link do edital (opcional)</span>
+<input type="text" id="editalLink" placeholder="https://...">
+</div>
+</div>
+<ul class="task-list" id="editaisList"></ul>
+<div class="empty" id="editaisEmpty" style="display:none;">Nenhum edital cadastrado ainda.</div>
+</div>
+
+<div id="estudoPanel" style="display:none;">
+<div class="add-box">
+<div class="add-row">
+<div class="field-col">
+<span class="field-label">Matéria</span>
+<input type="text" id="estudoMateria" placeholder="Ex: Direito Constitucional">
+</div>
+<div class="field-col" style="max-width:150px;">
+<span class="field-label">Data</span>
+<input type="date" id="estudoData">
+</div>
+<div class="field-col" style="max-width:130px;">
+<span class="field-label">Duração (min)</span>
+<input type="number" id="estudoMin" placeholder="60">
+</div>
+<button id="estudoAddBtn">Add</button>
+</div>
+<div class="field-col" style="margin-top:10px;">
+<span class="field-label">Tópico (opcional)</span>
+<input type="text" id="estudoTopico" placeholder="Ex: Controle de constitucionalidade">
+</div>
+</div>
+<div class="item-sub" style="font-weight:700;margin-bottom:10px;">Horas por matéria</div>
+<div id="estudoBars" style="margin-bottom:20px;"></div>
+<ul class="task-list" id="estudoList"></ul>
+<div class="empty" id="estudoEmpty" style="display:none;">Nenhuma sessão registrada ainda.</div>
+</div>
+
+<div id="questoesPanel" style="display:none;">
+<div class="add-box">
+<div class="add-row">
+<div class="field-col">
+<span class="field-label">Matéria</span>
+<input type="text" id="questaoMateria" placeholder="Ex: Raciocínio Lógico">
+</div>
+<div class="field-col">
+<span class="field-label">Banca (opcional)</span>
+<input type="text" id="questaoBanca" placeholder="Ex: FGV">
+</div>
+<div class="field-col" style="max-width:110px;">
+<span class="field-label">Total</span>
+<input type="number" id="questaoTotal" placeholder="20">
+</div>
+<div class="field-col" style="max-width:110px;">
+<span class="field-label">Acertos</span>
+<input type="number" id="questaoAcertos" placeholder="16">
+</div>
+<div class="field-col" style="max-width:150px;">
+<span class="field-label">Data</span>
+<input type="date" id="questaoData">
+</div>
+<button id="questaoAddBtn">Add</button>
+</div>
+</div>
+<div class="item-sub" style="font-weight:700;margin-bottom:10px;">Aproveitamento por matéria</div>
+<div id="questoesBars" style="margin-bottom:20px;"></div>
+<ul class="task-list" id="questoesList"></ul>
+<div class="empty" id="questoesEmpty" style="display:none;">Nenhum registro ainda.</div>
+</div>
+
+<div id="desempenhoPanel" style="display:none;">
+<div class="item-sub" style="margin-bottom:14px;">Cruzando horas estudadas com aproveitamento, matéria a matéria</div>
+<ul class="fatura-history" id="desempenhoList"></ul>
+<div class="empty" id="desempenhoEmpty" style="display:none;">Registre estudos e questões pra ver o cruzamento aqui.</div>
+</div>
+</div>
+</section>
+<section class="section-panel" data-section="financeiro" style="display:none;">
   <div class="card">
-    <h2>Financeiro</h2>
+    <h2>Metas</h2>
     <div class="sub">Sua caminhada até o carro e a casa própria</div>
-
     <div id="goalsList"></div>
-
     <div class="add-box">
       <div class="add-row">
         <div class="field-col">
@@ -426,8 +552,54 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
         <button id="goalAddBtn">Add</button>
       </div>
     </div>
+  </div>
 
-    <h2 style="margin-top:26px;">Fatura do cartão</h2>
+  <div class="card">
+    <h2>Resumo do mês</h2>
+    <div class="sub">Como esse mês está indo, de relance</div>
+    <div id="financeIndicators" class="finance-indicator-row"></div>
+    <div id="financeAlerts"></div>
+  </div>
+
+  <div class="card">
+    <h2>Lançar gasto avulso</h2>
+    <div class="sub">Pra quando não quer esperar a fatura fechar pra registrar algo</div>
+    <div class="add-box">
+      <div class="add-row">
+        <div class="field-col">
+          <span class="field-label">Descrição</span>
+          <input type="text" id="quickExpDesc" placeholder="Ex: Uber, Farmácia...">
+        </div>
+        <div class="field-col" style="max-width:150px;">
+          <span class="field-label">Categoria</span>
+          <select id="quickExpCategory">
+            <option>Restaurantes</option>
+            <option>Lazer</option>
+            <option>Transporte</option>
+            <option>Supermercados</option>
+            <option>Saúde</option>
+            <option>Serviços</option>
+            <option>Vestuário</option>
+            <option>Viagens</option>
+            <option>Bancos</option>
+            <option>Outros</option>
+          </select>
+        </div>
+        <div class="field-col" style="max-width:130px;">
+          <span class="field-label">Valor (R$)</span>
+          <input type="number" id="quickExpValue" placeholder="0,00">
+        </div>
+        <div class="field-col" style="max-width:150px;">
+          <span class="field-label">Data</span>
+          <input type="date" id="quickExpDate">
+        </div>
+        <button id="quickExpAddBtn">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fatura do cartão</h2>
     <div class="sub">Meta: manter no máximo <span id="faturaCapLabel">R$ 6.000,00</span> por mês</div>
     <div class="fatura-box">
       <div class="fatura-row" style="align-items:flex-end;">
@@ -444,17 +616,32 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
         <input type="number" id="faturaValue" placeholder="Valor da fatura (R$)">
         <button id="faturaAddBtn">Registrar</button>
       </div>
-      <div id="faturaChart" style="margin-bottom:14px;"></div>
-      <ul class="fatura-history" id="faturaHistory"></ul>
     </div>
+  </div>
 
-    <h2 style="margin-top:26px;">Análise de gastos</h2>
-    <div class="sub">Baseado nos PDFs de fatura que você já carregou</div>
-    <div class="fatura-box">
-      <div id="categoryChart" style="margin-bottom:16px;"></div>
-      <div class="item-sub" style="font-weight:700;margin-bottom:8px;">Gastos que mais se repetem</div>
-      <ul class="fatura-history" id="recurringSpendList"></ul>
-    </div>
+  <div class="card">
+    <h2>Evolução mensal</h2>
+    <div class="sub">Comparação mês a mês, com variação percentual</div>
+    <div id="faturaChart"></div>
+    <ul class="fatura-history" id="faturaHistory"></ul>
+  </div>
+
+  <div class="card">
+    <h2>Por categoria este mês</h2>
+    <div class="sub">Onde o dinheiro foi em <span id="catMonthLabel"></span></div>
+    <div id="categoryChartMonth"></div>
+  </div>
+
+  <div class="card">
+    <h2>Histórico por categoria</h2>
+    <div class="sub">Soma de tudo que já foi carregado, todas as categorias</div>
+    <div id="categoryChart"></div>
+  </div>
+
+  <div class="card">
+    <h2>Gastos que mais se repetem</h2>
+    <div class="sub">Assinaturas e cobranças recorrentes identificadas</div>
+    <ul class="fatura-history" id="recurringSpendList"></ul>
   </div>
   </section>
 
@@ -673,6 +860,9 @@ async function loadState(){
   if(!state.faturaCap) state.faturaCap = 6000;
   if(!state.faturaLog) state.faturaLog = {};
   if(!state.faturaTransactions) state.faturaTransactions = {};
+  if(!state.editais) state.editais = [];
+  if(!state.estudos) state.estudos = [];
+  if(!state.questoes) state.questoes = [];
   ensureDay(todayKey());
 
   if(!driveFileId){
@@ -1148,32 +1338,38 @@ function renderAniv(){
   ul.innerHTML = '';
   renderTodayBirthdays();
 
-  const currentMonth = new Date().getMonth() + 1;
-  const thisMonth = state.birthdays.filter(b => parseInt(b.mmdd.split('-')[0], 10) === currentMonth);
+  const today = todayDateObj();
+  const currentMonth = today.getMonth() + 1;
+  const currentYear = today.getFullYear();
+
+  const visible = state.birthdays
+    .map(b=>{
+      const [m,d] = b.mmdd.split('-').map(Number);
+      const occurrence = new Date(currentYear, m-1, d);
+      const daysPassed = daysBetween(occurrence, today); // positivo = já passou, negativo = ainda vai acontecer
+      return { b, m, d, daysPassed };
+    })
+    .filter(x => x.m === currentMonth && x.daysPassed <= 1);
 
   document.getElementById('anivMonthLabel').textContent = `Aniversariantes de ${MONTH_NAMES[currentMonth-1]}`;
   document.getElementById('anivTotalCount').textContent = state.birthdays.length;
 
-  empty.style.display = thisMonth.length === 0 ? 'block' : 'none';
+  empty.style.display = visible.length === 0 ? 'block' : 'none';
   empty.textContent = state.birthdays.length === 0
     ? 'Nenhum aniversário cadastrado ainda.'
-    : `Ninguém no seu círculo faz aniversário em ${MONTH_NAMES[currentMonth-1]}.`;
+    : `Ninguém no seu círculo faz aniversário em ${MONTH_NAMES[currentMonth-1]} (ou já passou há mais de 1 dia).`;
 
-  thisMonth
-    .slice()
-    .sort((a,b)=> parseInt(a.mmdd.split('-')[1],10) - parseInt(b.mmdd.split('-')[1],10))
-    .forEach(b=>{
-      const next = nextBirthdayOccurrence(b.mmdd);
-      const dleft = daysBetween(todayDateObj(), next);
-      const [m,d] = b.mmdd.split('-');
-      const dateLabel = `${parseInt(d,10)} de ${MONTH_NAMES[parseInt(m,10)-1]}`;
+  visible
+    .sort((a,b)=> a.d - b.d)
+    .forEach(({b, m, d, daysPassed})=>{
+      const dateLabel = `${d} de ${MONTH_NAMES[m-1]}`;
       const li = document.createElement('li');
       let badge = '';
-      if(dleft === 0) badge = '<span class="badge-due">hoje!</span>';
-      else if(dleft <= 2) badge = `<span class="badge-due">em ${dleft}d</span>`;
-      else if(dleft <= b.noticeDays) badge = `<span class="badge-warn">em ${dleft}d</span>`;
-      else if(dleft > 300) badge = `<span class="item-sub" style="width:auto;">já passou esse ano</span>`;
-      else badge = `<span class="badge-ok">em ${dleft}d</span>`;
+      if(daysPassed === 1) badge = '<span class="badge-warn">foi ontem</span>';
+      else if(daysPassed === 0) badge = '<span class="badge-due">hoje!</span>';
+      else if(-daysPassed <= 2) badge = `<span class="badge-due">em ${-daysPassed}d</span>`;
+      else if(-daysPassed <= b.noticeDays) badge = `<span class="badge-warn">em ${-daysPassed}d</span>`;
+      else badge = `<span class="badge-ok">em ${-daysPassed}d</span>`;
       li.innerHTML = `
         <span>🎂 ${b.name}<div class="item-sub">${dateLabel} · avisa ${b.noticeDays}d antes</div></span>
         <span class="meta">${badge}<button class="del">✕</button></span>
@@ -1786,44 +1982,176 @@ async function handleFaturaPdfUpload(){
     await saveState();
     status.textContent = `Li ${transactions.length} lançamento(s)${total !== null ? `, total de ${formatBRL(total)}` : ''}. Clique em "Registrar" pra confirmar o mês, ou ajuste o valor se precisar.`;
     renderSpendingAnalysis();
+    renderFinanceIndicators();
   }catch(e){
     console.error(e);
     status.textContent = 'Erro ao ler esse PDF. Confira se o arquivo não está corrompido ou protegido por senha.';
   }
 }
 
-function renderSpendingAnalysis(){
-  const catWrap = document.getElementById('categoryChart');
-  const recWrap = document.getElementById('recurringSpendList');
-  const allTx = Object.values(state.faturaTransactions || {}).flat();
-
-  if(allTx.length === 0){
-    catWrap.innerHTML = `<div class="item-sub">Carregue um PDF de fatura acima pra ver a análise por categoria e os gastos recorrentes.</div>`;
-    recWrap.innerHTML = '';
-    return;
-  }
-
-  // --- gráfico por categoria (soma de todos os meses carregados) ---
-  const catTotals = {};
-  allTx.forEach(t=>{ catTotals[t.category] = (catTotals[t.category]||0) + t.value; });
-  const catEntries = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+function buildCategoryBarsSVG(catEntries){
+  if(catEntries.length === 0) return `<div class="item-sub">Sem dados ainda.</div>`;
+  const total = catEntries.reduce((s,[,v])=>s+v, 0);
   const maxCat = Math.max(...catEntries.map(e=>e[1])) * 1.1;
   const barH = 26, gap = 10, W = 500;
   const H = catEntries.length * (barH+gap) + gap;
-
   let bars = '';
   catEntries.forEach(([cat,val], i)=>{
     const y = gap + i*(barH+gap);
-    const w = Math.max(4, (val/maxCat) * (W-160));
+    const w = Math.max(4, (val/maxCat) * (W-190));
+    const pct = Math.round((val/total)*100);
     bars += `
       <text x="0" y="${y+barH/2+4}" font-size="11.5" fill="var(--text-primary)">${cat}</text>
       <rect x="150" y="${y}" width="${w}" height="${barH}" rx="5" fill="var(--teal)" opacity="0.85"/>
-      <text x="${150+w+8}" y="${y+barH/2+4}" font-size="11" fill="var(--text-muted)">${formatBRL(val)}</text>
+      <text x="${150+w+8}" y="${y+barH/2+4}" font-size="11" fill="var(--text-muted)">${formatBRL(val)} (${pct}%)</text>
     `;
   });
-  catWrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">${bars}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">${bars}</svg>`;
+}
 
-  // --- gastos que mais se repetem (por descrição) ---
+function monthKeyOffset(monthKey, offset){
+  const [y,m] = monthKey.split('-').map(Number);
+  const d = new Date(y, m-1+offset, 1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+
+function renderFinanceIndicators(){
+  const wrap = document.getElementById('financeIndicators');
+  const alertsWrap = document.getElementById('financeAlerts');
+  const currentMonthKey = todayKey().slice(0,7);
+  const currentTx = (state.faturaTransactions && state.faturaTransactions[currentMonthKey]) || [];
+  const currentTotal = state.faturaLog[currentMonthKey] !== undefined
+    ? state.faturaLog[currentMonthKey]
+    : currentTx.reduce((s,t)=>s+t.value, 0);
+
+  const prevMonthKey = monthKeyOffset(currentMonthKey, -1);
+  const prevTotal = state.faturaLog[prevMonthKey];
+
+  const last3Keys = [1,2,3].map(n=>monthKeyOffset(currentMonthKey,-n)).filter(k=>state.faturaLog[k]!==undefined);
+  const last3Avg = last3Keys.length ? last3Keys.reduce((s,k)=>s+state.faturaLog[k],0)/last3Keys.length : null;
+
+  const catTotalsMonth = {};
+  currentTx.forEach(t=>{ catTotalsMonth[t.category] = (catTotalsMonth[t.category]||0)+t.value; });
+  const topCatEntry = Object.entries(catTotalsMonth).sort((a,b)=>b[1]-a[1])[0];
+
+  const pctCap = state.faturaCap ? Math.round((currentTotal/state.faturaCap)*100) : 0;
+  const pctVsPrev = (prevTotal!==undefined && prevTotal>0) ? Math.round(((currentTotal-prevTotal)/prevTotal)*100) : null;
+
+  function deltaSpan(pct, invert){
+    if(pct === null) return `<span class="indicator-delta neutral">sem dado do mês anterior</span>`;
+    const bad = invert ? pct < 0 : pct > 0;
+    const cls = pct === 0 ? 'neutral' : (bad ? 'up' : 'down');
+    const arrow = pct > 0 ? '↑' : pct < 0 ? '↓' : '';
+    return `<span class="indicator-delta ${cls}">${arrow} ${Math.abs(pct)}% vs. mês anterior</span>`;
+  }
+
+  wrap.innerHTML = `
+    <div class="indicator-card">
+      <div class="indicator-label">Gasto este mês</div>
+      <div class="indicator-value">${formatBRL(currentTotal)}</div>
+      ${deltaSpan(pctVsPrev)}
+    </div>
+    <div class="indicator-card">
+      <div class="indicator-label">% do teto (${formatBRL(state.faturaCap)})</div>
+      <div class="indicator-value" style="color:${pctCap>100?'var(--danger)':pctCap>80?'var(--amber)':'var(--success)'};">${pctCap}%</div>
+      <span class="indicator-delta neutral">${pctCap>100 ? 'acima do teto' : 'dentro do teto'}</span>
+    </div>
+    <div class="indicator-card">
+      <div class="indicator-label">Média últimos 3 meses</div>
+      <div class="indicator-value">${last3Avg!==null ? formatBRL(last3Avg) : '—'}</div>
+      <span class="indicator-delta neutral">${last3Keys.length} mês(es) considerado(s)</span>
+    </div>
+    <div class="indicator-card">
+      <div class="indicator-label">Maior categoria do mês</div>
+      <div class="indicator-value" style="font-size:16px;">${topCatEntry ? topCatEntry[0] : '—'}</div>
+      <span class="indicator-delta neutral">${topCatEntry ? formatBRL(topCatEntry[1]) : 'sem lançamentos ainda'}</span>
+    </div>
+  `;
+
+  // --- alertas ---
+  const alerts = [];
+  if(currentTotal > state.faturaCap){
+    alerts.push({ level:'danger', html: `💳 Você já passou do teto esse mês em <b>${formatBRL(currentTotal-state.faturaCap)}</b>.` });
+  }
+  if(pctVsPrev !== null && pctVsPrev >= 15){
+    alerts.push({ level:'warn', html: `📈 Gastando <b>${pctVsPrev}% a mais</b> que o mês passado.` });
+  } else if(pctVsPrev !== null && pctVsPrev <= -15){
+    alerts.push({ level:'info', html: `📉 Gastando <b>${Math.abs(pctVsPrev)}% a menos</b> que o mês passado — bom sinal.` });
+  }
+  if(topCatEntry && currentTotal > 0){
+    const share = Math.round((topCatEntry[1]/currentTotal)*100);
+    if(share >= 35){
+      alerts.push({ level:'warn', html: `🎯 <b>${topCatEntry[0]}</b> concentra <b>${share}%</b> dos seus gastos esse mês.` });
+    }
+  }
+  const allTxAll = Object.values(state.faturaTransactions || {}).flat();
+  if(allTxAll.length > 0){
+    const byDescAll = {};
+    allTxAll.forEach(t=>{
+      if(!byDescAll[t.description]) byDescAll[t.description] = 0;
+      byDescAll[t.description] += t.value;
+    });
+    const recurringTotal = Object.entries(byDescAll).filter(([,v])=>v>0).reduce((s,[d,v])=>{
+      const count = allTxAll.filter(t=>t.description===d).length;
+      return count >= 2 ? s+v : s;
+    }, 0);
+    const grandTotal = allTxAll.reduce((s,t)=>s+t.value,0);
+    const recurringShare = grandTotal>0 ? Math.round((recurringTotal/grandTotal)*100) : 0;
+    if(recurringShare >= 20){
+      alerts.push({ level:'info', html: `🔁 Gastos recorrentes somam <b>${formatBRL(recurringTotal)}</b> (${recurringShare}% do total carregado) — vale revisar assinaturas ativas.` });
+    }
+  }
+
+  alertsWrap.innerHTML = alerts.length === 0
+    ? `<div class="item-sub">Nenhum alerta por enquanto — segue assim.</div>`
+    : alerts.map(a=>`<div class="alert-card ${a.level==='danger'?'':a.level}">${a.html}</div>`).join('');
+}
+
+async function addQuickExpense(){
+  const desc = document.getElementById('quickExpDesc').value.trim();
+  const category = document.getElementById('quickExpCategory').value;
+  const value = parseFloat(document.getElementById('quickExpValue').value);
+  const dateVal = document.getElementById('quickExpDate').value || todayKey();
+  if(!desc || !value) return;
+
+  const monthKey = dateVal.slice(0,7);
+  if(!state.faturaTransactions) state.faturaTransactions = {};
+  if(!state.faturaTransactions[monthKey]) state.faturaTransactions[monthKey] = [];
+  const [,mo,da] = dateVal.split('-');
+  state.faturaTransactions[monthKey].push({ date: `${da}/${mo}`, category, description: desc, value });
+
+  document.getElementById('quickExpDesc').value = '';
+  document.getElementById('quickExpValue').value = '';
+
+  await saveState();
+  renderSpendingAnalysis();
+  renderFinanceIndicators();
+}
+
+function renderSpendingAnalysis(){
+  const catWrap = document.getElementById('categoryChart');
+  const catMonthWrap = document.getElementById('categoryChartMonth');
+  const recWrap = document.getElementById('recurringSpendList');
+  const allTx = Object.values(state.faturaTransactions || {}).flat();
+  const currentMonthKey = todayKey().slice(0,7);
+  const currentTx = (state.faturaTransactions && state.faturaTransactions[currentMonthKey]) || [];
+
+  document.getElementById('catMonthLabel').textContent = MONTH_NAMES[new Date().getMonth()];
+
+  const catTotalsMonth = {};
+  currentTx.forEach(t=>{ catTotalsMonth[t.category] = (catTotalsMonth[t.category]||0) + t.value; });
+  catMonthWrap.innerHTML = buildCategoryBarsSVG(Object.entries(catTotalsMonth).sort((a,b)=>b[1]-a[1]));
+
+  if(allTx.length === 0){
+    catWrap.innerHTML = `<div class="item-sub">Carregue um PDF de fatura ou lance um gasto avulso pra ver a análise.</div>`;
+    recWrap.innerHTML = '<li>Nada ainda.</li>';
+    return;
+  }
+
+  const catTotals = {};
+  allTx.forEach(t=>{ catTotals[t.category] = (catTotals[t.category]||0) + t.value; });
+  catWrap.innerHTML = buildCategoryBarsSVG(Object.entries(catTotals).sort((a,b)=>b[1]-a[1]));
+
   const byDesc = {};
   allTx.forEach(t=>{
     if(!byDesc[t.description]) byDesc[t.description] = { count:0, total:0 };
@@ -1853,20 +2181,32 @@ function renderFaturaChart(months){
   const chronological = months.slice().sort().slice(-6); // últimos 6 meses, mais antigo primeiro
   const values = chronological.map(m=>state.faturaLog[m]);
   const maxVal = Math.max(...values, state.faturaCap) * 1.15;
-  const W = 500, H = 180, padL = 10, padB = 26, barGap = 14;
+  const W = 500, H = 210, padL = 10, padT = 38, padB = 26, barGap = 14;
   const barW = (W - padL*2 - barGap*(chronological.length-1)) / chronological.length;
-  const capY = H - padB - (state.faturaCap / maxVal) * (H - padB - 10);
+  const capY = padT + (H - padT - padB - 10) - (state.faturaCap / maxVal) * (H - padT - padB - 10);
 
   let bars = '';
   chronological.forEach((m,i)=>{
     const val = state.faturaLog[m];
-    const barH = (val / maxVal) * (H - padB - 10);
+    const barH = (val / maxVal) * (H - padT - padB - 10);
     const x = padL + i*(barW+barGap);
     const y = H - padB - barH;
     const over = val > state.faturaCap;
     const [yr, mo] = m.split('-');
     const label = MONTH_NAMES[parseInt(mo,10)-1].slice(0,3);
+    let deltaLabel = '';
+    if(i > 0){
+      const prevVal = state.faturaLog[chronological[i-1]];
+      if(prevVal > 0){
+        const pct = Math.round(((val-prevVal)/prevVal)*100);
+        const arrow = pct > 0 ? '↑' : pct < 0 ? '↓' : '';
+        const color = pct > 0 ? 'var(--danger)' : pct < 0 ? 'var(--success)' : '#6B7280';
+        deltaLabel = `<text x="${x+barW/2}" y="${y-18}" text-anchor="middle" font-size="10" fill="${color}" font-weight="700">${arrow}${Math.abs(pct)}%</text>`;
+      }
+    }
     bars += `
+      <text x="${x+barW/2}" y="${y-5}" text-anchor="middle" font-size="10" fill="var(--text-primary)">${formatBRL(val)}</text>
+      ${deltaLabel}
       <rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="4" fill="${over ? 'var(--danger)' : 'var(--success)'}" opacity="0.85"/>
       <text x="${x+barW/2}" y="${H-padB+16}" text-anchor="middle" font-size="11" fill="#6B7280">${label}</text>
     `;
@@ -1911,6 +2251,8 @@ async function addFatura(){
   document.getElementById('faturaValue').value = '';
   await saveState();
   renderFatura();
+  renderFinanceIndicators();
+  renderBanner();
 }
 
 function yesterdayKey(){
@@ -1946,6 +2288,227 @@ function maybeShowSleepPrompt(){
   };
 }
 
+/* ---------- Concursos ---------- */
+let currentConcursoPanel = "editais";
+const CP_STATUS_LABELS = { aguardando:'Aguardando edital', inscrito:'Inscrito', estudando:'Estudando', concluido:'Concluído' };
+
+function fmtDatePt(iso){
+  if(!iso) return '\u2014';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function daysUntilDate(iso){
+  const target = new Date(iso+'T00:00:00');
+  return Math.round((target - todayDateObj())/86400000);
+}
+
+function switchConcursoPanel(p){
+  currentConcursoPanel = p;
+  ['editais','estudo','questoes','desempenho'].forEach(name=>{
+    document.getElementById('tabCp_'+name).classList.toggle('active-t', p===name);
+    document.getElementById(name+'Panel').style.display = p===name ? 'block' : 'none';
+  });
+}
+
+function renderNextEdital(){
+  const box = document.getElementById('nextEditalBox');
+  const upcoming = state.editais.filter(e=>daysUntilDate(e.data)>=0).sort((a,b)=>a.data.localeCompare(b.data));
+  if(upcoming.length===0){
+    box.innerHTML = `<div class="item-sub">Nenhum edital com prova futura cadastrada ainda.</div>`;
+    return;
+  }
+  const e = upcoming[0];
+  const d = daysUntilDate(e.data);
+  const color = d<=30 ? 'var(--danger)' : d<=90 ? 'var(--amber)' : 'var(--teal)';
+  const circumference = 301.6;
+  const pct = Math.min(1, Math.max(0, 1-(d/180)));
+  const offset = circumference - pct*circumference;
+  box.innerHTML = `
+    <div class="ring-row" style="margin-bottom:0;">
+      <div class="ring-wrap">
+        <svg width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="48" fill="none" stroke="#E1E4EC" stroke-width="9"/>
+          <circle cx="55" cy="55" r="48" fill="none" stroke="${color}" stroke-width="9"
+            stroke-linecap="round" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+            transform="rotate(-90 55 55)"/>
+        </svg>
+        <div class="ring-label">
+          <div class="big">${d}</div>
+          <div class="small">dias p/ prova</div>
+        </div>
+      </div>
+      <div class="status-text"><b>${e.nome}</b><br>${e.banca?e.banca+' &middot; ':''}${fmtDatePt(e.data)}</div>
+    </div>`;
+}
+
+function renderEditais(){
+  renderNextEdital();
+  const ul = document.getElementById('editaisList');
+  const empty = document.getElementById('editaisEmpty');
+  const sorted = [...state.editais].sort((a,b)=>a.data.localeCompare(b.data));
+  empty.style.display = sorted.length===0 ? 'block' : 'none';
+  ul.innerHTML = '';
+  sorted.forEach(e=>{
+    const d = daysUntilDate(e.data);
+    const faltamTxt = d>0 ? `${d}d` : d===0 ? 'Hoje' : 'Encerrado';
+    const badgeClass = d<=30 ? 'badge-due' : d<=90 ? 'badge-warn' : 'badge-ok';
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span><b>${e.nome}</b>${e.banca?` &middot; ${e.banca}`:''}${e.link?` &middot; <a href="${e.link}" target="_blank" style="color:var(--teal);">edital ↗</a>`:''}
+        <div class="item-sub">${fmtDatePt(e.data)}</div></span>
+      <span class="meta">
+        <span class="${badgeClass}">${faltamTxt}</span>
+        <span class="badge-rec">${CP_STATUS_LABELS[e.status]}</span>
+        <button class="del">✕</button>
+      </span>`;
+    li.querySelector('.del').addEventListener('click', async ()=>{
+      if(!confirm(`Excluir "${e.nome}"?`)) return;
+      state.editais = state.editais.filter(x=>x.id!==e.id);
+      await saveState(); renderEditais();
+    });
+    ul.appendChild(li);
+  });
+}
+
+async function addEdital(){
+  const nome = document.getElementById('editalNome').value.trim();
+  const data = document.getElementById('editalData').value;
+  if(!nome || !data) return;
+  state.editais.push({
+    id: uid(), nome, data,
+    banca: document.getElementById('editalBanca').value.trim(),
+    status: document.getElementById('editalStatus').value,
+    link: document.getElementById('editalLink').value.trim()
+  });
+  document.getElementById('editalNome').value='';
+  document.getElementById('editalBanca').value='';
+  document.getElementById('editalData').value='';
+  document.getElementById('editalLink').value='';
+  document.getElementById('editalStatus').value='inscrito';
+  await saveState(); renderEditais();
+}
+
+function renderEstudo(){
+  const ul = document.getElementById('estudoList');
+  const empty = document.getElementById('estudoEmpty');
+  const sorted = [...state.estudos].sort((a,b)=>b.data.localeCompare(a.data)).slice(0,15);
+  empty.style.display = sorted.length===0 ? 'block' : 'none';
+  ul.innerHTML = '';
+  sorted.forEach(s=>{
+    const li = document.createElement('li');
+    const h = Math.floor(s.minutos/60), m = s.minutos%60;
+    li.innerHTML = `
+      <span><b>${s.materia}</b>${s.topico?` &middot; ${s.topico}`:''}<div class="item-sub">${fmtDatePt(s.data)}</div></span>
+      <span class="meta"><span class="badge-ok">${h}h${String(m).padStart(2,'0')}</span><button class="del">✕</button></span>`;
+    li.querySelector('.del').addEventListener('click', async ()=>{
+      state.estudos = state.estudos.filter(x=>x.id!==s.id);
+      await saveState(); renderEstudo(); renderDesempenho();
+    });
+    ul.appendChild(li);
+  });
+  const bySubj = {};
+  state.estudos.forEach(s=>{ bySubj[s.materia] = (bySubj[s.materia]||0) + s.minutos; });
+  const entries = Object.entries(bySubj).sort((a,b)=>b[1]-a[1]);
+  const max = entries.length ? entries[0][1] : 1;
+  document.getElementById('estudoBars').innerHTML = entries.length ? entries.map(([m,min])=>{
+    const h = Math.floor(min/60), mm = min%60;
+    return `<div class="goal-card" style="padding:12px 14px;margin-bottom:10px;">
+      <div class="goal-top"><span class="goal-name" style="font-size:14px;">${m}</span><span class="goal-nums">${h}h${String(mm).padStart(2,'0')}</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${(min/max*100).toFixed(0)}%;background:linear-gradient(90deg,var(--amber),var(--teal));"></div></div>
+    </div>`;
+  }).join('') : `<div class="empty">Sem dados ainda.</div>`;
+}
+
+async function addEstudo(){
+  const materia = document.getElementById('estudoMateria').value.trim();
+  const min = parseInt(document.getElementById('estudoMin').value,10);
+  if(!materia || !min) return;
+  state.estudos.push({
+    id: uid(), materia, minutos: min,
+    data: document.getElementById('estudoData').value || todayKey(),
+    topico: document.getElementById('estudoTopico').value.trim()
+  });
+  document.getElementById('estudoMateria').value='';
+  document.getElementById('estudoMin').value='';
+  document.getElementById('estudoTopico').value='';
+  await saveState(); renderEstudo(); renderDesempenho();
+}
+
+function renderQuestoes(){
+  const ul = document.getElementById('questoesList');
+  const empty = document.getElementById('questoesEmpty');
+  const sorted = [...state.questoes].sort((a,b)=>b.data.localeCompare(a.data)).slice(0,15);
+  empty.style.display = sorted.length===0 ? 'block' : 'none';
+  ul.innerHTML = '';
+  sorted.forEach(q=>{
+    const pct = Math.round(q.acertos/q.total*100);
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span><b>${q.materia}</b>${q.banca?` &middot; ${q.banca}`:''}<div class="item-sub">${fmtDatePt(q.data)}</div></span>
+      <span class="meta"><span class="badge-ok">${q.acertos}/${q.total} (${pct}%)</span><button class="del">✕</button></span>`;
+    li.querySelector('.del').addEventListener('click', async ()=>{
+      state.questoes = state.questoes.filter(x=>x.id!==q.id);
+      await saveState(); renderQuestoes(); renderDesempenho();
+    });
+    ul.appendChild(li);
+  });
+  const bySubj = {};
+  state.questoes.forEach(q=>{
+    if(!bySubj[q.materia]) bySubj[q.materia] = {total:0, acertos:0};
+    bySubj[q.materia].total += q.total; bySubj[q.materia].acertos += q.acertos;
+  });
+  const entries = Object.entries(bySubj);
+  document.getElementById('questoesBars').innerHTML = entries.length ? entries.map(([m,v])=>{
+    const pct = Math.round(v.acertos/v.total*100);
+    return `<div class="goal-card" style="padding:12px 14px;margin-bottom:10px;">
+      <div class="goal-top"><span class="goal-name" style="font-size:14px;">${m}</span><span class="goal-nums">${pct}%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;"></div></div>
+    </div>`;
+  }).join('') : `<div class="empty">Sem dados ainda.</div>`;
+}
+
+async function addQuestao(){
+  const materia = document.getElementById('questaoMateria').value.trim();
+  const total = parseInt(document.getElementById('questaoTotal').value,10);
+  const acertos = parseInt(document.getElementById('questaoAcertos').value,10);
+  if(!materia || !total || isNaN(acertos) || acertos>total) return;
+  state.questoes.push({
+    id: uid(), materia, total, acertos,
+    banca: document.getElementById('questaoBanca').value.trim(),
+    data: document.getElementById('questaoData').value || todayKey()
+  });
+  document.getElementById('questaoMateria').value='';
+  document.getElementById('questaoBanca').value='';
+  document.getElementById('questaoTotal').value='';
+  document.getElementById('questaoAcertos').value='';
+  await saveState(); renderQuestoes(); renderDesempenho();
+}
+
+function renderDesempenho(){
+  const subjects = new Set([...state.estudos.map(s=>s.materia), ...state.questoes.map(q=>q.materia)]);
+  const ul = document.getElementById('desempenhoList');
+  const empty = document.getElementById('desempenhoEmpty');
+  empty.style.display = subjects.size===0 ? 'block' : 'none';
+  const rows = [...subjects].map(m=>{
+    const min = state.estudos.filter(s=>s.materia===m).reduce((a,s)=>a+s.minutos,0);
+    const qs = state.questoes.filter(q=>q.materia===m);
+    const total = qs.reduce((a,q)=>a+q.total,0);
+    const acertos = qs.reduce((a,q)=>a+q.acertos,0);
+    const pct = total ? Math.round(acertos/total*100) : null;
+    return {m, min, total, pct};
+  }).sort((a,b)=>(a.pct===null?101:a.pct) - (b.pct===null?101:b.pct));
+  ul.innerHTML = rows.map(r=>{
+    const h = Math.floor(r.min/60), mm = r.min%60;
+    let diag = '<span style="color:var(--text-muted);">sem quest\u00f5es</span>';
+    if(r.pct!==null){
+      if(r.pct<60) diag = '<span style="color:var(--danger);font-weight:700;">\u26a0 priorizar revis\u00e3o</span>';
+      else if(r.pct<80) diag = '<span style="color:var(--amber);font-weight:700;">consolidando</span>';
+      else diag = '<span style="color:var(--success);font-weight:700;">\u2713 ponto forte</span>';
+    }
+    return `<li><span><b>${r.m}</b> \u2014 ${h}h${String(mm).padStart(2,'0')} estudadas, ${r.total} quest\u00f5es${r.pct!==null?` (${r.pct}%)`:''}</span><span>${diag}</span></li>`;
+  }).join('');
+}
+
 async function boot(){
   document.getElementById('todayPill').textContent = formatDatePretty();
   await loadState();
@@ -1962,6 +2525,14 @@ async function boot(){
   renderGoals();
   renderFatura();
   renderSpendingAnalysis();
+  renderFinanceIndicators();
+  renderEditais();
+  renderEstudo();
+  renderQuestoes();
+  renderDesempenho();
+  document.getElementById('estudoData').value = todayKey();
+  document.getElementById('questaoData').value = todayKey();
+  document.getElementById('quickExpDate').value = todayKey();
   if(typeof pdfjsLib !== 'undefined'){
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   }
@@ -2049,6 +2620,15 @@ async function boot(){
   document.getElementById('goalAddBtn').addEventListener('click', addGoal);
   document.getElementById('faturaAddBtn').addEventListener('click', addFatura);
   document.getElementById('faturaPdfBtn').addEventListener('click', handleFaturaPdfUpload);
+  document.getElementById('quickExpAddBtn').addEventListener('click', addQuickExpense);
+
+  document.getElementById('editalAddBtn').addEventListener('click', addEdital);
+  document.getElementById('estudoAddBtn').addEventListener('click', addEstudo);
+  document.getElementById('questaoAddBtn').addEventListener('click', addQuestao);
+  document.getElementById('tabCp_editais').addEventListener('click', ()=>switchConcursoPanel('editais'));
+  document.getElementById('tabCp_estudo').addEventListener('click', ()=>switchConcursoPanel('estudo'));
+  document.getElementById('tabCp_questoes').addEventListener('click', ()=>switchConcursoPanel('questoes'));
+  document.getElementById('tabCp_desempenho').addEventListener('click', ()=>switchConcursoPanel('desempenho'));
 
   switchPeoplePanel('aniversarios');
 }
