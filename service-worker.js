@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rotina-foco-v1';
+  const CACHE_NAME = 'rotina-foco-v1';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
