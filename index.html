@@ -2799,9 +2799,15 @@ function importVerticalizacao(){
   const edital = {
     id: uid(),
     nome: data.nome,
+    orgao: data.orgao || '',
+    cargo: data.cargo || '',
+    vagas: data.vagas || '',
+    dataProva: data.dataProva || '',
+    resumoGeral: data.resumoGeral || '',
     materias: data.materias.map(m=>({
       id: uid(),
       nome: m.nome,
+      pontosImportantes: m.pontosImportantes || '',
       topicos: (m.topicos||[]).map(t=>({ id: uid(), texto: typeof t === 'string' ? t : t.texto, estudado: false }))
     }))
   };
@@ -2820,9 +2826,15 @@ function renderVert(){
     const allTopicos = edital.materias.flatMap(m=>m.topicos);
     const done = allTopicos.filter(t=>t.estudado).length;
     const pct = pctOf(done, allTopicos.length);
+    const infoBits = [];
+    if(edital.vagas) infoBits.push(`🪑 ${edital.vagas}`);
+    if(edital.dataProva) infoBits.push(`📅 Prova: ${edital.dataProva}`);
+    const infoLine = infoBits.length ? `<div class="item-sub" style="margin-bottom:8px;">${infoBits.join(' &middot; ')}</div>` : '';
+    const resumoLine = edital.resumoGeral ? `<div class="mat-item-resumo" style="margin-bottom:12px;">${edital.resumoGeral}</div>` : '';
     const materiasHtml = edital.materias.map(m=>{
       const mDone = m.topicos.filter(t=>t.estudado).length;
       const mPct = pctOf(mDone, m.topicos.length);
+      const dicaLine = m.pontosImportantes ? `<div class="item-sub" style="margin:4px 0 6px;font-style:italic;">💡 ${m.pontosImportantes}</div>` : '';
       const topicosHtml = m.topicos.map(t=>`
         <li>
           <input type="checkbox" ${t.estudado?'checked':''} data-edital="${edital.id}" data-materia="${m.id}" data-topico="${t.id}">
@@ -2834,6 +2846,7 @@ function renderVert(){
           <span class="vert-materia-pct">${mDone}/${m.topicos.length} &middot; ${mPct}%</span>
         </div>
         <div class="progress-track" style="margin-top:6px;height:7px;"><div class="progress-fill" style="width:${mPct}%;"></div></div>
+        ${dicaLine}
         <ul class="vert-topicos" id="topicos_${m.id}">${topicosHtml}</ul>
       </div>`;
     }).join('');
@@ -2843,6 +2856,8 @@ function renderVert(){
         <span class="badge-ok">${pct}% do edital</span>
         <button class="del" data-del-edital="${edital.id}">✕</button>
       </div>
+      ${infoLine}
+      ${resumoLine}
       <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--amber),var(--teal));"></div></div>
       ${materiasHtml}
     </div>`;
@@ -2965,9 +2980,15 @@ async function analisarEditalPdf(){
   const edital = {
     id: uid(),
     nome: data.nome,
+    orgao: data.orgao || '',
+    cargo: data.cargo || '',
+    vagas: data.vagas || '',
+    dataProva: data.dataProva || '',
+    resumoGeral: data.resumoGeral || '',
     materias: (data.materias||[]).map(m=>({
       id: uid(),
       nome: m.nome,
+      pontosImportantes: m.pontosImportantes || '',
       topicos: (m.topicos||[]).map(t=>({ id: uid(), texto: typeof t === 'string' ? t : t.texto, estudado: false }))
     }))
   };

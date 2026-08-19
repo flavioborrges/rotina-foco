@@ -9,7 +9,12 @@ self.addEventListener('activate', (event) => {
 });
 
 // Estratégia simples: tenta a rede primeiro, cai pro cache se estiver offline.
+// Só aplica isso a pedidos GET — POST (como as chamadas pro Worker de IA)
+// vai direto pra rede, sem passar pelo cache (Cache API não suporta POST).
 self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') {
+    return;
+  }
   event.respondWith(
     fetch(event.request)
       .then((response) => {
