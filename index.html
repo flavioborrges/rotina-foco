@@ -166,6 +166,41 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
 }
 .nav-item:hover{background:var(--bg-panel-2);color:var(--text-primary);}
 .nav-item.active{background:rgba(201,130,31,0.15);color:var(--amber);}
+.nav-group-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);opacity:0.6;padding:12px 12px 2px;}
+.home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:900px){ .home-grid{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:600px){ .home-grid{grid-template-columns:1fr;} }
+.home-card{background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;}
+.home-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.home-card-label{font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;}
+.home-card-value{font-family:'Fraunces',serif;font-size:21px;font-weight:600;line-height:1.15;}
+.home-card-sub{font-size:12.5px;color:var(--text-muted);line-height:1.4;}
+.home-card-link{align-self:flex-start;background:none;border:none;color:var(--teal);font-size:12.5px;font-weight:700;cursor:pointer;padding:0;margin-top:2px;font-family:'Inter',sans-serif;}
+.home-card-link:hover{text-decoration:underline;}
+.vert-edital{background:var(--bg-panel-2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px;}
+.vert-edital-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
+.vert-edital-name{font-family:'Fraunces',serif;font-size:16px;font-weight:600;}
+.vert-materia{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;}
+.vert-materia-head{display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:8px;}
+.vert-materia-name{font-weight:700;font-size:13.5px;}
+.vert-materia-pct{font-size:12px;color:var(--text-muted);flex:none;}
+.vert-topicos{list-style:none;margin:8px 0 0;padding:0;display:none;}
+.vert-topicos.open{display:block;}
+.vert-topicos li{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;}
+.vert-topicos input[type=checkbox]{width:15px;height:15px;accent-color:var(--teal);cursor:pointer;flex:none;}
+.vert-topicos span.done{color:var(--text-muted);text-decoration:line-through;}
+.crono-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px;}
+.crono-table th{text-align:left;color:var(--text-muted);font-size:11px;padding:6px 8px;border-bottom:1px solid var(--line);}
+.crono-table td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top;}
+.crono-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(30,158,144,0.12);color:var(--teal);border-radius:16px;padding:3px 9px;font-size:11.5px;font-weight:600;margin:2px 4px 2px 0;}
+.crono-chip button{background:none;border:none;color:var(--teal);cursor:pointer;font-size:11px;padding:0;}
+.mat-item{background:var(--bg-panel-2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+.mat-item-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.mat-item-title{font-family:'Fraunces',serif;font-size:15px;font-weight:600;}
+.mat-item-resumo{font-size:13px;color:var(--text-muted);margin-top:6px;line-height:1.5;}
+.flashcard-box{background:var(--bg-panel-2);border:1px solid var(--line);border-radius:14px;padding:36px 24px;text-align:center;font-size:16px;min-height:120px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1.5;}
+.flashcard-box .hint{display:block;font-size:11px;color:var(--text-muted);margin-top:14px;}
+.flashcard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px;}
 .main-area{flex:1;min-width:0;padding:28px 16px 60px;}
 .main-area .wrap{padding:0;}
 
@@ -176,6 +211,7 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
     border-right:none;border-bottom:1px solid var(--line);
   }
   .sidebar-brand{display:none;}
+  .nav-group-label{display:none;}
   .nav-item{white-space:nowrap;padding:8px 14px;}
   .main-area{padding:20px 12px 50px;}
 }
@@ -210,10 +246,21 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
 
   <nav class="sidebar">
     <div class="sidebar-brand">Rotina & Foco</div>
-    <button class="nav-item active" data-nav="pessoal">🧍 Pessoal</button>
+    <button class="nav-item active" data-nav="inicio">🏠 Início</button>
+    <button class="nav-item" data-nav="pessoal">🧍 Pessoal</button>
     <button class="nav-item" data-nav="profissional">💼 Profissional</button>
-    <button class="nav-item" data-nav="concursos">🎯 Concursos</button>
-    <button class="nav-item" data-nav="financeiro">💰 Financeiro</button>
+    <div class="nav-group-label">Concursos</div>
+    <button class="nav-item" data-nav="editais">🎯 Editais</button>
+    <button class="nav-item" data-nav="verticalizacao">📚 Verticalização</button>
+    <button class="nav-item" data-nav="estudo">⏱️ Estudo</button>
+    <button class="nav-item" data-nav="questoes">📝 Questões</button>
+    <button class="nav-item" data-nav="desempenho">📈 Desempenho</button>
+    <div class="nav-group-label">Financeiro</div>
+    <button class="nav-item" data-nav="metas">🪙 Metas</button>
+    <button class="nav-item" data-nav="fatura">💳 Fatura</button>
+    <button class="nav-item" data-nav="gastos">🧾 Gastos</button>
+    <div class="nav-group-label">&nbsp;</div>
+    <button class="nav-item" data-nav="materiais">📄 Materiais</button>
     <button class="nav-item" data-nav="relacionamentos">🤝 Relacionamentos</button>
   </nav>
 
@@ -236,7 +283,11 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
     <div id="weekSummary"></div>
   </div>
 
-  <section class="section-panel" data-section="pessoal">
+  <section class="section-panel" data-section="inicio">
+    <div class="home-grid" id="homeGrid"></div>
+  </section>
+
+  <section class="section-panel" data-section="pessoal" style="display:none;">
   <div class="grid">
 
     <div class="card">
@@ -335,6 +386,41 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
       <div class="empty" id="emptyMsg" style="display:none;">Nenhum item ainda por aqui.</div>
   </div>
 
+  <section class="section-panel" data-section="materiais" style="display:none;">
+  <div class="card">
+    <h2>Materiais de estudo</h2>
+    <div class="sub">Resumos e flashcards, gerados automaticamente a partir de qualquer PDF</div>
+    <div class="add-box">
+      <div class="add-row" style="align-items:flex-end;">
+        <div class="field-col">
+          <span class="field-label">Enviar PDF de estudo (resumo + flashcards automáticos)</span>
+          <input type="file" id="matPdfInput" accept="application/pdf" style="padding:6px 0;">
+        </div>
+        <button id="matPdfBtn">🤖 Gerar material</button>
+      </div>
+      <div class="item-sub" id="matPdfStatus" style="margin-bottom:4px;"></div>
+    </div>
+    <div class="add-box">
+      <div class="field-col">
+        <span class="field-label">Ou colar material manualmente (JSON gerado no chat com Claude)</span>
+        <textarea id="matImportBox" rows="4" placeholder='Cole aqui o JSON com resumo + flashcards...' style="width:100%;background:var(--bg-deep);border:1px solid var(--line);color:var(--text-primary);border-radius:8px;padding:9px 12px;font-size:12.5px;font-family:'Inter',sans-serif;resize:vertical;"></textarea>
+      </div>
+      <div class="form-actions" style="display:flex;justify-content:flex-end;margin-top:8px;">
+        <button id="matImportBtn">Importar material</button>
+      </div>
+      <div class="item-sub" id="matImportStatus" style="margin-top:6px;"></div>
+    </div>
+    <div id="matList"></div>
+    <div class="empty" id="matEmpty" style="display:none;">Nenhum material importado ainda.</div>
+  </div>
+
+  <div class="card" id="flashcardReviewCard" style="display:none;">
+    <h2 id="flashTitle">Flashcards</h2>
+    <div class="sub" id="flashProgress"></div>
+    <div id="flashArea"></div>
+  </div>
+  </section>
+
   <section class="section-panel" data-section="relacionamentos" style="display:none;">
   <div class="card">
     <h2>Relacionamentos</h2>
@@ -416,121 +502,196 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
   </div>
   </section>
 
-  <section class="section-panel" data-section="concursos" style="display:none;">
-<div class="card">
-<h2>Concursos</h2>
-<div class="sub">Editais, estudo e desempenho, tudo num só lugar</div>
-<div class="tab-row">
-<button class="tab active-t" id="tabCp_editais" data-cp="editais">Editais</button>
-<button class="tab" id="tabCp_estudo" data-cp="estudo">Estudo</button>
-<button class="tab" id="tabCp_questoes" data-cp="questoes">Questões</button>
-<button class="tab" id="tabCp_desempenho" data-cp="desempenho">Desempenho</button>
-</div>
+  <section class="section-panel" data-section="editais" style="display:none;">
+  <div class="card">
+    <h2>Editais & Provas</h2>
+    <div class="sub">Concursos que você está acompanhando</div>
+    <div id="nextEditalBox" style="margin-bottom:20px;"></div>
+    <div class="add-box">
+      <div class="add-row">
+        <div class="field-col" style="flex:2;min-width:200px;">
+          <span class="field-label">Órgão / Cargo</span>
+          <input type="text" id="editalNome" placeholder="Ex: TJDFT — Analista Judiciário">
+        </div>
+        <div class="field-col">
+          <span class="field-label">Banca</span>
+          <input type="text" id="editalBanca" placeholder="Ex: CEBRASPE">
+        </div>
+        <div class="field-col" style="max-width:150px;">
+          <span class="field-label">Data da prova</span>
+          <input type="date" id="editalData">
+        </div>
+        <div class="field-col" style="max-width:170px;">
+          <span class="field-label">Status</span>
+          <select id="editalStatus">
+            <option value="aguardando">Aguardando edital</option>
+            <option value="inscrito" selected>Inscrito</option>
+            <option value="estudando">Estudando</option>
+            <option value="concluido">Concluído</option>
+          </select>
+        </div>
+        <button id="editalAddBtn">Add</button>
+      </div>
+      <div class="field-col" style="margin-top:10px;">
+        <span class="field-label">Link do edital (opcional)</span>
+        <input type="text" id="editalLink" placeholder="https://...">
+      </div>
+    </div>
+    <ul class="task-list" id="editaisList"></ul>
+    <div class="empty" id="editaisEmpty" style="display:none;">Nenhum edital cadastrado ainda.</div>
+  </div>
+  </section>
 
-<div id="editaisPanel">
-<div id="nextEditalBox" style="margin-bottom:20px;"></div>
-<div class="add-box">
-<div class="add-row">
-<div class="field-col" style="flex:2;min-width:200px;">
-<span class="field-label">Órgão / Cargo</span>
-<input type="text" id="editalNome" placeholder="Ex: TJDFT — Analista Judiciário">
-</div>
-<div class="field-col">
-<span class="field-label">Banca</span>
-<input type="text" id="editalBanca" placeholder="Ex: CEBRASPE">
-</div>
-<div class="field-col" style="max-width:150px;">
-<span class="field-label">Data da prova</span>
-<input type="date" id="editalData">
-</div>
-<div class="field-col" style="max-width:170px;">
-<span class="field-label">Status</span>
-<select id="editalStatus">
-<option value="aguardando">Aguardando edital</option>
-<option value="inscrito" selected>Inscrito</option>
-<option value="estudando">Estudando</option>
-<option value="concluido">Concluído</option>
-</select>
-</div>
-<button id="editalAddBtn">Add</button>
-</div>
-<div class="field-col" style="margin-top:10px;">
-<span class="field-label">Link do edital (opcional)</span>
-<input type="text" id="editalLink" placeholder="https://...">
-</div>
-</div>
-<ul class="task-list" id="editaisList"></ul>
-<div class="empty" id="editaisEmpty" style="display:none;">Nenhum edital cadastrado ainda.</div>
-</div>
+  <section class="section-panel" data-section="verticalizacao" style="display:none;">
+  <div class="card">
+    <h2>Verticalização de editais</h2>
+    <div class="sub">Matérias e tópicos, com percentual estudado</div>
+    <div class="add-box">
+      <div class="add-row" style="align-items:flex-end;">
+        <div class="field-col">
+          <span class="field-label">Enviar PDF do edital (análise automática)</span>
+          <input type="file" id="vertPdfInput" accept="application/pdf" style="padding:6px 0;">
+        </div>
+        <button id="vertPdfBtn">🤖 Analisar edital</button>
+      </div>
+      <div class="item-sub" id="vertPdfStatus" style="margin-bottom:4px;"></div>
+    </div>
+    <div class="add-box">
+      <div class="field-col">
+        <span class="field-label">Ou colar verticalização manualmente (JSON gerado no chat com Claude)</span>
+        <textarea id="vertImportBox" rows="4" placeholder='Cole aqui o JSON que o Claude gerou a partir do edital...' style="width:100%;background:var(--bg-deep);border:1px solid var(--line);color:var(--text-primary);border-radius:8px;padding:9px 12px;font-size:12.5px;font-family:'Inter',sans-serif;resize:vertical;"></textarea>
+      </div>
+      <div class="form-actions" style="display:flex;justify-content:flex-end;margin-top:8px;">
+        <button id="vertImportBtn">Importar verticalização</button>
+      </div>
+      <div class="item-sub" id="vertImportStatus" style="margin-top:6px;"></div>
+    </div>
+    <div id="vertList"></div>
+    <div class="empty" id="vertEmpty" style="display:none;">Nenhum edital verticalizado ainda. Mande o PDF do edital pro Claude no chat e cole o resultado aqui.</div>
+  </div>
 
-<div id="estudoPanel" style="display:none;">
-<div class="add-box">
-<div class="add-row">
-<div class="field-col">
-<span class="field-label">Matéria</span>
-<input type="text" id="estudoMateria" placeholder="Ex: Direito Constitucional">
-</div>
-<div class="field-col" style="max-width:150px;">
-<span class="field-label">Data</span>
-<input type="date" id="estudoData">
-</div>
-<div class="field-col" style="max-width:130px;">
-<span class="field-label">Duração (min)</span>
-<input type="number" id="estudoMin" placeholder="60">
-</div>
-<button id="estudoAddBtn">Add</button>
-</div>
-<div class="field-col" style="margin-top:10px;">
-<span class="field-label">Tópico (opcional)</span>
-<input type="text" id="estudoTopico" placeholder="Ex: Controle de constitucionalidade">
-</div>
-</div>
-<div class="item-sub" style="font-weight:700;margin-bottom:10px;">Horas por matéria</div>
-<div id="estudoBars" style="margin-bottom:20px;"></div>
-<ul class="task-list" id="estudoList"></ul>
-<div class="empty" id="estudoEmpty" style="display:none;">Nenhuma sessão registrada ainda.</div>
-</div>
+  <div class="card">
+    <h2>Cronograma de estudo</h2>
+    <div class="sub">Distribua as matérias pelos dias da semana</div>
+    <div class="add-box">
+      <div class="add-row">
+        <div class="field-col" style="max-width:150px;">
+          <span class="field-label">Dia</span>
+          <select id="cronoDia">
+            <option value="0">Domingo</option>
+            <option value="1">Segunda</option>
+            <option value="2">Terça</option>
+            <option value="3">Quarta</option>
+            <option value="4">Quinta</option>
+            <option value="5">Sexta</option>
+            <option value="6">Sábado</option>
+          </select>
+        </div>
+        <div class="field-col">
+          <span class="field-label">Matéria</span>
+          <input type="text" id="cronoMateria" placeholder="Ex: Direito Constitucional" list="cronoMateriaList">
+          <datalist id="cronoMateriaList"></datalist>
+        </div>
+        <div class="field-col" style="max-width:120px;">
+          <span class="field-label">Horário (opc.)</span>
+          <input type="time" id="cronoHorario">
+        </div>
+        <button id="cronoAddBtn">Add</button>
+      </div>
+    </div>
+    <div id="cronoGrid"></div>
+  </div>
+  </section>
 
-<div id="questoesPanel" style="display:none;">
-<div class="add-box">
-<div class="add-row">
-<div class="field-col">
-<span class="field-label">Matéria</span>
-<input type="text" id="questaoMateria" placeholder="Ex: Raciocínio Lógico">
-</div>
-<div class="field-col">
-<span class="field-label">Banca (opcional)</span>
-<input type="text" id="questaoBanca" placeholder="Ex: FGV">
-</div>
-<div class="field-col" style="max-width:110px;">
-<span class="field-label">Total</span>
-<input type="number" id="questaoTotal" placeholder="20">
-</div>
-<div class="field-col" style="max-width:110px;">
-<span class="field-label">Acertos</span>
-<input type="number" id="questaoAcertos" placeholder="16">
-</div>
-<div class="field-col" style="max-width:150px;">
-<span class="field-label">Data</span>
-<input type="date" id="questaoData">
-</div>
-<button id="questaoAddBtn">Add</button>
-</div>
-</div>
-<div class="item-sub" style="font-weight:700;margin-bottom:10px;">Aproveitamento por matéria</div>
-<div id="questoesBars" style="margin-bottom:20px;"></div>
-<ul class="task-list" id="questoesList"></ul>
-<div class="empty" id="questoesEmpty" style="display:none;">Nenhum registro ainda.</div>
-</div>
+  <section class="section-panel" data-section="estudo" style="display:none;">
+  <div class="card">
+    <h2>Horas de estudo</h2>
+    <div class="sub">Registre suas sessões por matéria</div>
+    <div class="add-box">
+      <div class="add-row">
+        <div class="field-col">
+          <span class="field-label">Matéria</span>
+          <input type="text" id="estudoMateria" placeholder="Ex: Direito Constitucional">
+        </div>
+        <div class="field-col" style="max-width:150px;">
+          <span class="field-label">Data</span>
+          <input type="date" id="estudoData">
+        </div>
+        <div class="field-col" style="max-width:130px;">
+          <span class="field-label">Duração (min)</span>
+          <input type="number" id="estudoMin" placeholder="60">
+        </div>
+        <button id="estudoAddBtn">Add</button>
+      </div>
+      <div class="add-row" style="margin-top:10px;">
+        <div class="field-col">
+          <span class="field-label">Tópico (opcional)</span>
+          <input type="text" id="estudoTopico" placeholder="Ex: Controle de constitucionalidade">
+        </div>
+        <div class="field-col" style="max-width:130px;">
+          <span class="field-label">Páginas lidas (opc.)</span>
+          <input type="number" id="estudoPaginas" placeholder="0">
+        </div>
+        <div class="field-col" style="max-width:150px;">
+          <span class="field-label">Exercícios feitos (opc.)</span>
+          <input type="number" id="estudoExercicios" placeholder="0">
+        </div>
+      </div>
+    </div>
+    <div class="finance-indicator-row" id="estudoTotais" style="margin-bottom:18px;"></div>
+    <div class="item-sub" style="font-weight:700;margin-bottom:10px;">Horas por matéria</div>
+    <div id="estudoBars" style="margin-bottom:20px;"></div>
+    <ul class="task-list" id="estudoList"></ul>
+    <div class="empty" id="estudoEmpty" style="display:none;">Nenhuma sessão registrada ainda.</div>
+  </div>
+  </section>
 
-<div id="desempenhoPanel" style="display:none;">
-<div class="item-sub" style="margin-bottom:14px;">Cruzando horas estudadas com aproveitamento, matéria a matéria</div>
-<ul class="fatura-history" id="desempenhoList"></ul>
-<div class="empty" id="desempenhoEmpty" style="display:none;">Registre estudos e questões pra ver o cruzamento aqui.</div>
-</div>
-</div>
-</section>
-<section class="section-panel" data-section="financeiro" style="display:none;">
+  <section class="section-panel" data-section="questoes" style="display:none;">
+  <div class="card">
+    <h2>Questões & Simulados</h2>
+    <div class="sub">Acompanhe seu aproveitamento por matéria</div>
+    <div class="add-box">
+      <div class="add-row">
+        <div class="field-col">
+          <span class="field-label">Matéria</span>
+          <input type="text" id="questaoMateria" placeholder="Ex: Raciocínio Lógico">
+        </div>
+        <div class="field-col">
+          <span class="field-label">Banca (opcional)</span>
+          <input type="text" id="questaoBanca" placeholder="Ex: FGV">
+        </div>
+        <div class="field-col" style="max-width:110px;">
+          <span class="field-label">Total</span>
+          <input type="number" id="questaoTotal" placeholder="20">
+        </div>
+        <div class="field-col" style="max-width:110px;">
+          <span class="field-label">Acertos</span>
+          <input type="number" id="questaoAcertos" placeholder="16">
+        </div>
+        <div class="field-col" style="max-width:150px;">
+          <span class="field-label">Data</span>
+          <input type="date" id="questaoData">
+        </div>
+        <button id="questaoAddBtn">Add</button>
+      </div>
+    </div>
+    <div class="item-sub" style="font-weight:700;margin-bottom:10px;">Aproveitamento por matéria</div>
+    <div id="questoesBars" style="margin-bottom:20px;"></div>
+    <ul class="task-list" id="questoesList"></ul>
+    <div class="empty" id="questoesEmpty" style="display:none;">Nenhum registro ainda.</div>
+  </div>
+  </section>
+
+  <section class="section-panel" data-section="desempenho" style="display:none;">
+  <div class="card">
+    <h2>Desempenho</h2>
+    <div class="sub">Cruzando horas estudadas com aproveitamento, matéria a matéria</div>
+    <ul class="fatura-history" id="desempenhoList"></ul>
+    <div class="empty" id="desempenhoEmpty" style="display:none;">Registre estudos e questões pra ver o cruzamento aqui.</div>
+  </div>
+  </section>
+
+  <section class="section-panel" data-section="metas" style="display:none;">
   <div class="card">
     <h2>Metas</h2>
     <div class="sub">Sua caminhada até o carro e a casa própria</div>
@@ -553,7 +714,9 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
       </div>
     </div>
   </div>
+  </section>
 
+  <section class="section-panel" data-section="fatura" style="display:none;">
   <div class="card">
     <h2>Resumo do mês</h2>
     <div class="sub">Como esse mês está indo, de relance</div>
@@ -561,6 +724,36 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
     <div id="financeAlerts"></div>
   </div>
 
+  <div class="card">
+    <h2>Fatura do cartão</h2>
+    <div class="sub">Meta: manter no máximo <span id="faturaCapLabel">R$ 6.000,00</span> por mês</div>
+    <div class="fatura-box">
+      <div class="fatura-row" style="align-items:flex-end;">
+        <div class="field-col">
+          <span class="field-label">Carregar PDF da fatura (Ourocard BB)</span>
+          <input type="file" id="faturaPdfInput" accept="application/pdf" style="padding:6px 0;">
+        </div>
+        <button id="faturaPdfBtn">📄 Ler PDF</button>
+      </div>
+      <div class="item-sub" id="faturaPdfStatus" style="margin-bottom:14px;"></div>
+
+      <div class="fatura-row">
+        <input type="month" id="faturaMonth">
+        <input type="number" id="faturaValue" placeholder="Valor da fatura (R$)">
+        <button id="faturaAddBtn">Registrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Evolução mensal</h2>
+    <div class="sub">Comparação mês a mês, com variação percentual</div>
+    <div id="faturaChart"></div>
+    <ul class="fatura-history" id="faturaHistory"></ul>
+  </div>
+  </section>
+
+  <section class="section-panel" data-section="gastos" style="display:none;">
   <div class="card">
     <h2>Lançar gasto avulso</h2>
     <div class="sub">Pra quando não quer esperar a fatura fechar pra registrar algo</div>
@@ -596,34 +789,6 @@ h1{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin:0;letter-s
         <button id="quickExpAddBtn">Add</button>
       </div>
     </div>
-  </div>
-
-  <div class="card">
-    <h2>Fatura do cartão</h2>
-    <div class="sub">Meta: manter no máximo <span id="faturaCapLabel">R$ 6.000,00</span> por mês</div>
-    <div class="fatura-box">
-      <div class="fatura-row" style="align-items:flex-end;">
-        <div class="field-col">
-          <span class="field-label">Carregar PDF da fatura (Ourocard BB)</span>
-          <input type="file" id="faturaPdfInput" accept="application/pdf" style="padding:6px 0;">
-        </div>
-        <button id="faturaPdfBtn">📄 Ler PDF</button>
-      </div>
-      <div class="item-sub" id="faturaPdfStatus" style="margin-bottom:14px;"></div>
-
-      <div class="fatura-row">
-        <input type="month" id="faturaMonth">
-        <input type="number" id="faturaValue" placeholder="Valor da fatura (R$)">
-        <button id="faturaAddBtn">Registrar</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Evolução mensal</h2>
-    <div class="sub">Comparação mês a mês, com variação percentual</div>
-    <div id="faturaChart"></div>
-    <ul class="fatura-history" id="faturaHistory"></ul>
   </div>
 
   <div class="card">
@@ -863,6 +1028,9 @@ async function loadState(){
   if(!state.editais) state.editais = [];
   if(!state.estudos) state.estudos = [];
   if(!state.questoes) state.questoes = [];
+  if(!state.verticalizacao) state.verticalizacao = [];
+  if(!state.cronograma) state.cronograma = [];
+  if(!state.materiais) state.materiais = [];
   ensureDay(todayKey());
 
   if(!driveFileId){
@@ -1147,6 +1315,9 @@ function showSection(name){
   document.querySelectorAll('.nav-item').forEach(b=>{
     b.classList.toggle('active', b.dataset.nav === name);
   });
+
+  document.getElementById('weekSummaryCard').style.display = (name === 'inicio') ? 'block' : 'none';
+  if(name === 'inicio') renderHome();
 
   const tarefasCard = document.getElementById('tarefasCard');
   if(name === 'pessoal'){
@@ -2289,7 +2460,6 @@ function maybeShowSleepPrompt(){
 }
 
 /* ---------- Concursos ---------- */
-let currentConcursoPanel = "editais";
 const CP_STATUS_LABELS = { aguardando:'Aguardando edital', inscrito:'Inscrito', estudando:'Estudando', concluido:'Concluído' };
 
 function fmtDatePt(iso){
@@ -2302,16 +2472,9 @@ function daysUntilDate(iso){
   return Math.round((target - todayDateObj())/86400000);
 }
 
-function switchConcursoPanel(p){
-  currentConcursoPanel = p;
-  ['editais','estudo','questoes','desempenho'].forEach(name=>{
-    document.getElementById('tabCp_'+name).classList.toggle('active-t', p===name);
-    document.getElementById(name+'Panel').style.display = p===name ? 'block' : 'none';
-  });
-}
-
 function renderNextEdital(){
   const box = document.getElementById('nextEditalBox');
+  if(!box) return;
   const upcoming = state.editais.filter(e=>daysUntilDate(e.data)>=0).sort((a,b)=>a.data.localeCompare(b.data));
   if(upcoming.length===0){
     box.innerHTML = `<div class="item-sub">Nenhum edital com prova futura cadastrada ainda.</div>`;
@@ -2364,7 +2527,7 @@ function renderEditais(){
     li.querySelector('.del').addEventListener('click', async ()=>{
       if(!confirm(`Excluir "${e.nome}"?`)) return;
       state.editais = state.editais.filter(x=>x.id!==e.id);
-      await saveState(); renderEditais();
+      await saveState(); renderEditais(); renderHome();
     });
     ul.appendChild(li);
   });
@@ -2385,7 +2548,7 @@ async function addEdital(){
   document.getElementById('editalData').value='';
   document.getElementById('editalLink').value='';
   document.getElementById('editalStatus').value='inscrito';
-  await saveState(); renderEditais();
+  await saveState(); renderEditais(); renderHome();
 }
 
 function renderEstudo(){
@@ -2397,12 +2560,16 @@ function renderEstudo(){
   sorted.forEach(s=>{
     const li = document.createElement('li');
     const h = Math.floor(s.minutos/60), m = s.minutos%60;
+    const extras = [];
+    if(s.paginas) extras.push(`${s.paginas}p`);
+    if(s.exercicios) extras.push(`${s.exercicios}ex`);
+    const extrasBadge = extras.length ? `<span class="badge-rec">${extras.join(' · ')}</span>` : '';
     li.innerHTML = `
       <span><b>${s.materia}</b>${s.topico?` &middot; ${s.topico}`:''}<div class="item-sub">${fmtDatePt(s.data)}</div></span>
-      <span class="meta"><span class="badge-ok">${h}h${String(m).padStart(2,'0')}</span><button class="del">✕</button></span>`;
+      <span class="meta"><span class="badge-ok">${h}h${String(m).padStart(2,'0')}</span>${extrasBadge}<button class="del">✕</button></span>`;
     li.querySelector('.del').addEventListener('click', async ()=>{
       state.estudos = state.estudos.filter(x=>x.id!==s.id);
-      await saveState(); renderEstudo(); renderDesempenho();
+      await saveState(); renderEstudo(); renderDesempenho(); renderHome();
     });
     ul.appendChild(li);
   });
@@ -2417,21 +2584,36 @@ function renderEstudo(){
       <div class="progress-track"><div class="progress-fill" style="width:${(min/max*100).toFixed(0)}%;background:linear-gradient(90deg,var(--amber),var(--teal));"></div></div>
     </div>`;
   }).join('') : `<div class="empty">Sem dados ainda.</div>`;
+
+  // Totais gerais
+  const totalMin = state.estudos.reduce((a,s)=>a+s.minutos,0);
+  const totalPag = state.estudos.reduce((a,s)=>a+(s.paginas||0),0);
+  const totalEx = state.estudos.reduce((a,s)=>a+(s.exercicios||0),0);
+  document.getElementById('estudoTotais').innerHTML = `
+    <div class="indicator-card"><div class="indicator-label">Total estudado</div><div class="indicator-value">${Math.floor(totalMin/60)}h${String(totalMin%60).padStart(2,'0')}</div></div>
+    <div class="indicator-card"><div class="indicator-label">Páginas lidas</div><div class="indicator-value">${totalPag}</div></div>
+    <div class="indicator-card"><div class="indicator-label">Exercícios feitos</div><div class="indicator-value">${totalEx}</div></div>`;
 }
 
 async function addEstudo(){
   const materia = document.getElementById('estudoMateria').value.trim();
   const min = parseInt(document.getElementById('estudoMin').value,10);
   if(!materia || !min) return;
+  const pag = parseInt(document.getElementById('estudoPaginas').value,10);
+  const ex = parseInt(document.getElementById('estudoExercicios').value,10);
   state.estudos.push({
     id: uid(), materia, minutos: min,
     data: document.getElementById('estudoData').value || todayKey(),
-    topico: document.getElementById('estudoTopico').value.trim()
+    topico: document.getElementById('estudoTopico').value.trim(),
+    paginas: isNaN(pag) ? 0 : pag,
+    exercicios: isNaN(ex) ? 0 : ex
   });
   document.getElementById('estudoMateria').value='';
   document.getElementById('estudoMin').value='';
   document.getElementById('estudoTopico').value='';
-  await saveState(); renderEstudo(); renderDesempenho();
+  document.getElementById('estudoPaginas').value='';
+  document.getElementById('estudoExercicios').value='';
+  await saveState(); renderEstudo(); renderDesempenho(); renderHome();
 }
 
 function renderQuestoes(){
@@ -2448,7 +2630,7 @@ function renderQuestoes(){
       <span class="meta"><span class="badge-ok">${q.acertos}/${q.total} (${pct}%)</span><button class="del">✕</button></span>`;
     li.querySelector('.del').addEventListener('click', async ()=>{
       state.questoes = state.questoes.filter(x=>x.id!==q.id);
-      await saveState(); renderQuestoes(); renderDesempenho();
+      await saveState(); renderQuestoes(); renderDesempenho(); renderHome();
     });
     ul.appendChild(li);
   });
@@ -2481,7 +2663,7 @@ async function addQuestao(){
   document.getElementById('questaoBanca').value='';
   document.getElementById('questaoTotal').value='';
   document.getElementById('questaoAcertos').value='';
-  await saveState(); renderQuestoes(); renderDesempenho();
+  await saveState(); renderQuestoes(); renderDesempenho(); renderHome();
 }
 
 function renderDesempenho(){
@@ -2509,6 +2691,408 @@ function renderDesempenho(){
   }).join('');
 }
 
+/* ---------- Home dashboard ---------- */
+function renderHome(){
+  const grid = document.getElementById('homeGrid');
+  if(!grid) return;
+
+  // Sono
+  const streak = computeStreak();
+  const sonoSub = streak > 0 ? `${streak} dia(s) seguidos dentro da meta` : 'Registre hoje para começar sua sequência';
+  const sonoCard = `<div class="home-card">
+    <div class="home-card-top"><span class="home-card-label">Sono</span></div>
+    <div class="home-card-value">Meta ${state.bedtimeGoal}</div>
+    <div class="home-card-sub">${sonoSub}</div>
+    <button class="home-card-link" onclick="showSection('pessoal')">Ver sono →</button>
+  </div>`;
+
+  // Tarefas hoje
+  const todayObj = todayDateObj();
+  const day = ensureDay(todayKey());
+  const todayItems = state.events.filter(ev=> (ev.cat==='pessoal'||ev.cat==='profissional') && eventOccursOnDate(ev, todayObj));
+  const pending = todayItems.filter(ev=>!day.eventsDone.includes(ev.id)).length;
+  const tarefasCard = `<div class="home-card">
+    <div class="home-card-top"><span class="home-card-label">Tarefas hoje</span></div>
+    <div class="home-card-value">${pending} pendente${pending===1?'':'s'}</div>
+    <div class="home-card-sub">${todayItems.length} no total pra hoje</div>
+    <button class="home-card-link" onclick="showSection('pessoal')">Ver tarefas →</button>
+  </div>`;
+
+  // Próximo edital
+  const upcoming = state.editais.filter(e=>daysUntilDate(e.data)>=0).sort((a,b)=>a.data.localeCompare(b.data));
+  let editalCard;
+  if(upcoming.length){
+    const e = upcoming[0]; const d = daysUntilDate(e.data);
+    editalCard = `<div class="home-card">
+      <div class="home-card-top"><span class="home-card-label">Próximo edital</span></div>
+      <div class="home-card-value">${d} dia${d===1?'':'s'}</div>
+      <div class="home-card-sub">${e.nome}</div>
+      <button class="home-card-link" onclick="showSection('editais')">Ver editais →</button>
+    </div>`;
+  } else {
+    editalCard = `<div class="home-card">
+      <div class="home-card-top"><span class="home-card-label">Concursos</span></div>
+      <div class="home-card-value">—</div>
+      <div class="home-card-sub">Nenhum edital cadastrado</div>
+      <button class="home-card-link" onclick="showSection('editais')">Cadastrar edital →</button>
+    </div>`;
+  }
+
+  // Financeiro (mês atual vs teto da fatura)
+  const nowMonthKey = new Date().toISOString().slice(0,7);
+  const faturaAtual = (state.faturaLog && state.faturaLog[nowMonthKey]) || null;
+  let finCard;
+  if(faturaAtual !== null){
+    const over = faturaAtual > state.faturaCap;
+    finCard = `<div class="home-card">
+      <div class="home-card-top"><span class="home-card-label">Fatura deste mês</span></div>
+      <div class="home-card-value" style="color:${over?'var(--danger)':'var(--success)'};">R$ ${faturaAtual.toLocaleString('pt-BR')}</div>
+      <div class="home-card-sub">Meta: até R$ ${state.faturaCap.toLocaleString('pt-BR')}</div>
+      <button class="home-card-link" onclick="showSection('fatura')">Ver fatura →</button>
+    </div>`;
+  } else {
+    finCard = `<div class="home-card">
+      <div class="home-card-top"><span class="home-card-label">Fatura deste mês</span></div>
+      <div class="home-card-value">—</div>
+      <div class="home-card-sub">Nenhum valor registrado ainda</div>
+      <button class="home-card-link" onclick="showSection('fatura')">Ver fatura →</button>
+    </div>`;
+  }
+
+  // Aniversários
+  const upcomingBday = [...state.birthdays].map(b=>{
+    const next = nextBirthdayOccurrence(b.mmdd);
+    return { ...b, days: daysBetween(todayDateObj(), next) };
+  }).sort((a,b)=>a.days-b.days)[0];
+  let anivCard;
+  if(upcomingBday){
+    anivCard = `<div class="home-card">
+      <div class="home-card-top"><span class="home-card-label">Próximo aniversário</span></div>
+      <div class="home-card-value">${upcomingBday.days===0?'Hoje!':upcomingBday.days+' dia'+(upcomingBday.days===1?'':'s')}</div>
+      <div class="home-card-sub">${upcomingBday.name}</div>
+      <button class="home-card-link" onclick="showSection('relacionamentos')">Ver relacionamentos →</button>
+    </div>`;
+  } else {
+    anivCard = `<div class="home-card">
+      <div class="home-card-top"><span class="home-card-label">Aniversários</span></div>
+      <div class="home-card-value">—</div>
+      <div class="home-card-sub">Nenhum cadastrado ainda</div>
+      <button class="home-card-link" onclick="showSection('relacionamentos')">Cadastrar →</button>
+    </div>`;
+  }
+
+  grid.innerHTML = sonoCard + tarefasCard + editalCard + finCard + anivCard;
+}
+
+/* ---------- Verticalizacao ---------- */
+function pctOf(done, total){ return total ? Math.round(done/total*100) : 0; }
+
+function importVerticalizacao(){
+  const box = document.getElementById('vertImportBox');
+  const status = document.getElementById('vertImportStatus');
+  let data;
+  try{ data = JSON.parse(box.value); }
+  catch(e){ status.textContent = 'JSON inválido. Confira se colou o texto completo.'; status.style.color = 'var(--danger)'; return; }
+  if(!data.nome || !Array.isArray(data.materias)){
+    status.textContent = 'Formato inesperado (precisa de "nome" e "materias").'; status.style.color = 'var(--danger)'; return;
+  }
+  const edital = {
+    id: uid(),
+    nome: data.nome,
+    materias: data.materias.map(m=>({
+      id: uid(),
+      nome: m.nome,
+      topicos: (m.topicos||[]).map(t=>({ id: uid(), texto: typeof t === 'string' ? t : t.texto, estudado: false }))
+    }))
+  };
+  state.verticalizacao.push(edital);
+  box.value = '';
+  status.textContent = `Importado: ${edital.nome} (${edital.materias.length} matérias).`;
+  status.style.color = 'var(--success)';
+  saveState(); renderVert(); renderCronoMateriaList();
+}
+
+function renderVert(){
+  const wrap = document.getElementById('vertList');
+  const empty = document.getElementById('vertEmpty');
+  empty.style.display = state.verticalizacao.length===0 ? 'block' : 'none';
+  wrap.innerHTML = state.verticalizacao.map(edital=>{
+    const allTopicos = edital.materias.flatMap(m=>m.topicos);
+    const done = allTopicos.filter(t=>t.estudado).length;
+    const pct = pctOf(done, allTopicos.length);
+    const materiasHtml = edital.materias.map(m=>{
+      const mDone = m.topicos.filter(t=>t.estudado).length;
+      const mPct = pctOf(mDone, m.topicos.length);
+      const topicosHtml = m.topicos.map(t=>`
+        <li>
+          <input type="checkbox" ${t.estudado?'checked':''} data-edital="${edital.id}" data-materia="${m.id}" data-topico="${t.id}">
+          <span class="${t.estudado?'done':''}">${t.texto}</span>
+        </li>`).join('');
+      return `<div class="vert-materia">
+        <div class="vert-materia-head" data-toggle="${m.id}">
+          <span class="vert-materia-name">${m.nome}</span>
+          <span class="vert-materia-pct">${mDone}/${m.topicos.length} &middot; ${mPct}%</span>
+        </div>
+        <div class="progress-track" style="margin-top:6px;height:7px;"><div class="progress-fill" style="width:${mPct}%;"></div></div>
+        <ul class="vert-topicos" id="topicos_${m.id}">${topicosHtml}</ul>
+      </div>`;
+    }).join('');
+    return `<div class="vert-edital">
+      <div class="vert-edital-top">
+        <span class="vert-edital-name">${edital.nome}</span>
+        <span class="badge-ok">${pct}% do edital</span>
+        <button class="del" data-del-edital="${edital.id}">✕</button>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--amber),var(--teal));"></div></div>
+      ${materiasHtml}
+    </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('[data-toggle]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      document.getElementById('topicos_'+el.dataset.toggle).classList.toggle('open');
+    });
+  });
+  wrap.querySelectorAll('input[type=checkbox][data-topico]').forEach(cb=>{
+    cb.addEventListener('change', async ()=>{
+      const edital = state.verticalizacao.find(e=>e.id===cb.dataset.edital);
+      const materia = edital.materias.find(m=>m.id===cb.dataset.materia);
+      const topico = materia.topicos.find(t=>t.id===cb.dataset.topico);
+      topico.estudado = cb.checked;
+      await saveState(); renderVert(); renderHome();
+    });
+  });
+  wrap.querySelectorAll('[data-del-edital]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      if(!confirm('Excluir esta verticalização?')) return;
+      state.verticalizacao = state.verticalizacao.filter(e=>e.id!==btn.dataset.delEdital);
+      await saveState(); renderVert(); renderCronoMateriaList();
+    });
+  });
+}
+
+const CRONO_DIAS = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+
+function renderCronoMateriaList(){
+  const dl = document.getElementById('cronoMateriaList');
+  const names = new Set();
+  state.verticalizacao.forEach(e=> e.materias.forEach(m=> names.add(m.nome)));
+  state.estudos.forEach(s=> names.add(s.materia));
+  dl.innerHTML = [...names].map(n=>`<option value="${n}">`).join('');
+}
+
+async function addCronoItem(){
+  const materia = document.getElementById('cronoMateria').value.trim();
+  if(!materia) return;
+  state.cronograma.push({
+    id: uid(),
+    dia: parseInt(document.getElementById('cronoDia').value,10),
+    materia,
+    horario: document.getElementById('cronoHorario').value || null
+  });
+  document.getElementById('cronoMateria').value='';
+  document.getElementById('cronoHorario').value='';
+  await saveState(); renderCronoGrid();
+}
+
+function renderCronoGrid(){
+  const wrap = document.getElementById('cronoGrid');
+  const rows = CRONO_DIAS.map((label, idx)=>{
+    const items = state.cronograma.filter(c=>c.dia===idx).sort((a,b)=>(a.horario||'99:99').localeCompare(b.horario||'99:99'));
+    const chips = items.map(c=>`<span class="crono-chip">${c.horario?c.horario+' &middot; ':''}${c.materia}<button data-del-crono="${c.id}">✕</button></span>`).join('') || '<span class="item-sub">—</span>';
+    return `<tr><th style="white-space:nowrap;">${label}</th><td>${chips}</td></tr>`;
+  }).join('');
+  wrap.innerHTML = `<table class="crono-table"><tbody>${rows}</tbody></table>`;
+  wrap.querySelectorAll('[data-del-crono]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      state.cronograma = state.cronograma.filter(c=>c.id!==btn.dataset.delCrono);
+      await saveState(); renderCronoGrid();
+    });
+  });
+}
+
+/* ---------- Materiais (resumos + flashcards) ---------- */
+/* ---------- IA Worker (Cloudflare) ---------- */
+const IA_WORKER_URL = "https://rotina-foco.flavioborges1986.workers.dev/";
+
+function fileToBase64(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=> resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function callIaWorker(action, file, statusEl, btnEl){
+  if(!file){ statusEl.textContent = 'Escolha um arquivo PDF primeiro.'; statusEl.style.color = 'var(--danger)'; return null; }
+  const originalLabel = btnEl.textContent;
+  btnEl.disabled = true;
+  btnEl.textContent = 'Analisando... (pode levar até 1 min)';
+  statusEl.textContent = '';
+  try{
+    const b64 = await fileToBase64(file);
+    const res = await fetch(IA_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, pdf_base64: b64 })
+    });
+    const data = await res.json();
+    if(!res.ok || data.error){
+      statusEl.textContent = 'Erro: ' + (data.error || 'falha desconhecida.');
+      statusEl.style.color = 'var(--danger)';
+      return null;
+    }
+    statusEl.textContent = 'Pronto!';
+    statusEl.style.color = 'var(--success)';
+    return data;
+  } catch(e){
+    statusEl.textContent = 'Não consegui falar com o servidor de IA: ' + e.message;
+    statusEl.style.color = 'var(--danger)';
+    return null;
+  } finally {
+    btnEl.disabled = false;
+    btnEl.textContent = originalLabel;
+  }
+}
+
+async function analisarEditalPdf(){
+  const file = document.getElementById('vertPdfInput').files[0];
+  const statusEl = document.getElementById('vertPdfStatus');
+  const btnEl = document.getElementById('vertPdfBtn');
+  const data = await callIaWorker('analisar-edital', file, statusEl, btnEl);
+  if(!data) return;
+  const edital = {
+    id: uid(),
+    nome: data.nome,
+    materias: (data.materias||[]).map(m=>({
+      id: uid(),
+      nome: m.nome,
+      topicos: (m.topicos||[]).map(t=>({ id: uid(), texto: typeof t === 'string' ? t : t.texto, estudado: false }))
+    }))
+  };
+  state.verticalizacao.push(edital);
+  document.getElementById('vertPdfInput').value = '';
+  await saveState(); renderVert(); renderCronoMateriaList();
+}
+
+async function gerarMaterialPdf(){
+  const file = document.getElementById('matPdfInput').files[0];
+  const statusEl = document.getElementById('matPdfStatus');
+  const btnEl = document.getElementById('matPdfBtn');
+  const data = await callIaWorker('gerar-material', file, statusEl, btnEl);
+  if(!data) return;
+  state.materiais.push({
+    id: uid(),
+    titulo: data.titulo,
+    resumo: data.resumo || '',
+    flashcards: (data.flashcards||[]).map(f=>({ id: uid(), frente: f.frente, verso: f.verso }))
+  });
+  document.getElementById('matPdfInput').value = '';
+  await saveState(); renderMat();
+}
+
+
+let currentFlashIndex = 0;
+let currentFlashFlipped = false;
+
+function importMaterial(){
+  const box = document.getElementById('matImportBox');
+  const status = document.getElementById('matImportStatus');
+  let data;
+  try{ data = JSON.parse(box.value); }
+  catch(e){ status.textContent = 'JSON inválido. Confira se colou o texto completo.'; status.style.color = 'var(--danger)'; return; }
+  if(!data.titulo){
+    status.textContent = 'Formato inesperado (precisa de "titulo").'; status.style.color = 'var(--danger)'; return;
+  }
+  state.materiais.push({
+    id: uid(),
+    titulo: data.titulo,
+    resumo: data.resumo || '',
+    flashcards: (data.flashcards||[]).map(f=>({ id: uid(), frente: f.frente, verso: f.verso }))
+  });
+  box.value = '';
+  status.textContent = `Importado: ${data.titulo}.`;
+  status.style.color = 'var(--success)';
+  saveState(); renderMat();
+}
+
+function renderMat(){
+  const wrap = document.getElementById('matList');
+  const empty = document.getElementById('matEmpty');
+  empty.style.display = state.materiais.length===0 ? 'block' : 'none';
+  wrap.innerHTML = state.materiais.map(m=>`
+    <div class="mat-item">
+      <div class="mat-item-top">
+        <span class="mat-item-title">${m.titulo}</span>
+        <span class="meta" style="display:flex;gap:6px;">
+          ${m.flashcards.length ? `<button class="small-btn" data-review="${m.id}">🔁 Revisar ${m.flashcards.length} flashcards</button>` : ''}
+          <button class="del" data-del-mat="${m.id}">✕</button>
+        </span>
+      </div>
+      ${m.resumo ? `<div class="mat-item-resumo">${m.resumo}</div>` : ''}
+    </div>`).join('');
+
+  wrap.querySelectorAll('[data-review]').forEach(btn=>{
+    btn.addEventListener('click', ()=> openFlashcardReview(btn.dataset.review));
+  });
+  wrap.querySelectorAll('[data-del-mat]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      if(!confirm('Excluir este material?')) return;
+      state.materiais = state.materiais.filter(m=>m.id!==btn.dataset.delMat);
+      if(currentFlashcards && currentFlashcards.materialId === btn.dataset.delMat){
+        document.getElementById('flashcardReviewCard').style.display = 'none';
+        currentFlashcards = null;
+      }
+      await saveState(); renderMat();
+    });
+  });
+}
+
+function openFlashcardReview(materialId){
+  const m = state.materiais.find(x=>x.id===materialId);
+  if(!m || m.flashcards.length===0) return;
+  currentFlashcards = { materialId, cards: m.flashcards };
+  currentFlashIndex = 0;
+  currentFlashFlipped = false;
+  document.getElementById('flashTitle').textContent = 'Flashcards — ' + m.titulo;
+  document.getElementById('flashcardReviewCard').style.display = 'block';
+  renderFlashcard();
+  document.getElementById('flashcardReviewCard').scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function renderFlashcard(){
+  if(!currentFlashcards) return;
+  const { cards } = currentFlashcards;
+  const card = cards[currentFlashIndex];
+  document.getElementById('flashProgress').textContent = `Cartão ${currentFlashIndex+1} de ${cards.length} — clique pra virar`;
+  const area = document.getElementById('flashArea');
+  area.innerHTML = `
+    <div class="flashcard-box" id="flashcardBox">
+      ${currentFlashFlipped ? card.verso : card.frente}
+      <span class="hint">${currentFlashFlipped ? '(resposta)' : '(clique para ver a resposta)'}</span>
+    </div>
+    <div class="flashcard-nav">
+      <button class="small-btn" id="flashPrevBtn">← Anterior</button>
+      <button class="small-btn" id="flashPrevBtn2" style="display:none;"></button>
+      <button class="small-btn" id="flashNextBtn">Próximo →</button>
+    </div>`;
+  document.getElementById('flashcardBox').addEventListener('click', ()=>{
+    currentFlashFlipped = !currentFlashFlipped;
+    renderFlashcard();
+  });
+  document.getElementById('flashPrevBtn').addEventListener('click', ()=>{
+    currentFlashIndex = (currentFlashIndex - 1 + cards.length) % cards.length;
+    currentFlashFlipped = false;
+    renderFlashcard();
+  });
+  document.getElementById('flashNextBtn').addEventListener('click', ()=>{
+    currentFlashIndex = (currentFlashIndex + 1) % cards.length;
+    currentFlashFlipped = false;
+    renderFlashcard();
+  });
+}
+
 async function boot(){
   document.getElementById('todayPill').textContent = formatDatePretty();
   await loadState();
@@ -2530,6 +3114,10 @@ async function boot(){
   renderEstudo();
   renderQuestoes();
   renderDesempenho();
+  renderVert();
+  renderCronoMateriaList();
+  renderCronoGrid();
+  renderMat();
   document.getElementById('estudoData').value = todayKey();
   document.getElementById('questaoData').value = todayKey();
   document.getElementById('quickExpDate').value = todayKey();
@@ -2572,7 +3160,15 @@ async function boot(){
   document.querySelectorAll('.nav-item').forEach(btn=>{
     btn.addEventListener('click', ()=> showSection(btn.dataset.nav));
   });
-  const lastSection = localStorage.getItem('rf_last_section') || 'pessoal';
+  document.getElementById('editalAddBtn').addEventListener('click', addEdital);
+  document.getElementById('estudoAddBtn').addEventListener('click', addEstudo);
+  document.getElementById('questaoAddBtn').addEventListener('click', addQuestao);
+  document.getElementById('vertImportBtn').addEventListener('click', importVerticalizacao);
+  document.getElementById('cronoAddBtn').addEventListener('click', addCronoItem);
+  document.getElementById('matImportBtn').addEventListener('click', importMaterial);
+  document.getElementById('vertPdfBtn').addEventListener('click', analisarEditalPdf);
+  document.getElementById('matPdfBtn').addEventListener('click', gerarMaterialPdf);
+  const lastSection = localStorage.getItem('rf_last_section') || 'inicio';
   showSection(lastSection);
   document.getElementById('freqSelect').addEventListener('change', renderFreqExtra);
   renderFreqExtra();
@@ -2621,14 +3217,6 @@ async function boot(){
   document.getElementById('faturaAddBtn').addEventListener('click', addFatura);
   document.getElementById('faturaPdfBtn').addEventListener('click', handleFaturaPdfUpload);
   document.getElementById('quickExpAddBtn').addEventListener('click', addQuickExpense);
-
-  document.getElementById('editalAddBtn').addEventListener('click', addEdital);
-  document.getElementById('estudoAddBtn').addEventListener('click', addEstudo);
-  document.getElementById('questaoAddBtn').addEventListener('click', addQuestao);
-  document.getElementById('tabCp_editais').addEventListener('click', ()=>switchConcursoPanel('editais'));
-  document.getElementById('tabCp_estudo').addEventListener('click', ()=>switchConcursoPanel('estudo'));
-  document.getElementById('tabCp_questoes').addEventListener('click', ()=>switchConcursoPanel('questoes'));
-  document.getElementById('tabCp_desempenho').addEventListener('click', ()=>switchConcursoPanel('desempenho'));
 
   switchPeoplePanel('aniversarios');
 }
